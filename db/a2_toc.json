@@ -1,0 +1,1704 @@
+{
+  "modules": {
+    "Module 2: Finite State Automata": [
+      {
+        "id": "f095617b-8c1f-4790-8366-6ef420150d00",
+        "question": [
+          {
+            "type": "text",
+            "content": "a) For languages A and B, let the perfect shuffle of A and B be the language {w | w = a\u2081b\u2081...a\u2096b\u2096, where a\u2081...a\u2096 \u2208 A and b\u2081...b\u2096 \u2208 B, each a\u1d62, b\u1d62 \u2208 \u03a3}. Show that the class of regular languages is closed under perfect shuffle. Marks: 5"
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### a) Closure of Regular Languages under Perfect Shuffle\n\n#### Definition\nLet $A$ and $B$ be languages over an alphabet $\\Sigma$. The **perfect shuffle** of $A$ and $B$, denoted here as $\\text{PS}(A,B)$, is defined as:"
+          },
+          {
+            "type": "latex",
+            "content": "\\text{PS}(A,B) = \\{ w \\in \\Sigma^* \\mid w = a_1 b_1 a_2 b_2 \\dots a_k b_k, \\text{ where } a_1 \\dots a_k \\in A \\text{ and } b_1 \\dots b_k \\in B, \\text{ each } a_i, b_i \\in \\Sigma, \\text{ for some } k \\ge 0 \\}."
+          },
+          {
+            "type": "text",
+            "content": "For $k=0$, the empty string is included if $\\varepsilon \\in A$ and $\\varepsilon \\in B$.\n\n#### Proof of Closure\nAssume $A$ and $B$ are regular languages. Then there exist deterministic finite automata (DFAs) that recognize them. Let:\n- $M_A = (Q_A, \\Sigma, \\delta_A, q_{0A}, F_A)$ be a DFA for $A$,\n- $M_B = (Q_B, \\Sigma, \\delta_B, q_{0B}, F_B)$ be a DFA for $B$.\n\nWe construct a DFA $M = (Q, \\Sigma, \\delta, q_0, F)$ that recognizes $\\text{PS}(A,B)$.\n\n**State Set**:  \n$Q = Q_A \\times Q_B \\times \\{A, B\\}$.  \nThe third component tracks whether the next symbol to be read should be treated as coming from $A$ (mode $A$) or from $B$ (mode $B$).\n\n**Initial State**:  \n$q_0 = (q_{0A}, q_{0B}, A)$, since the first symbol of $w$ corresponds to a character from $A$.\n\n**Accepting States**:  \nAfter processing a valid string $w = a_1 b_1 \\dots a_k b_k$, we must have:\n- The sequence of odd-position symbols $a_1 \\dots a_k$ is accepted by $M_A$, i.e., the $M_A$ component is in $F_A$.\n- The sequence of even-position symbols $b_1 \\dots b_k$ is accepted by $M_B$, i.e., the $M_B$ component is in $F_B$.\n- The mode returns to $A$ after reading an even number of symbols (since we toggle after each symbol).  \n\nThus, $F = F_A \\times F_B \\times \\{A\\}$.\n\n**Transition Function** $\\delta$:  \nFor any $p \\in Q_A$, $q \\in Q_B$, and $\\sigma \\in \\Sigma$:"
+          },
+          {
+            "type": "latex",
+            "content": "\\delta((p, q, A), \\sigma) = (\\delta_A(p, \\sigma), q, B)."
+          },
+          {
+            "type": "text",
+            "content": "The symbol $\\sigma$ is interpreted as an $a$-character; we update $M_A$'s state and switch mode to $B$."
+          },
+          {
+            "type": "latex",
+            "content": "\\delta((p, q, B), \\sigma) = (p, \\delta_B(q, \\sigma), A)."
+          },
+          {
+            "type": "text",
+            "content": "The symbol $\\sigma$ is interpreted as a $b$-character; we update $M_B$'s state and switch mode to $A$.\n\nSince $\\delta_A$ and $\\delta_B$ are deterministic, $\\delta$ is also deterministic, making $M$ a DFA. Moreover, $Q$ is finite because $Q_A$ and $Q_B$ are finite.\n\n#### Correctness\nWe show that $L(M) = \\text{PS}(A,B)$.\n\n- **Claim 1**: If $w \\in \\text{PS}(A,B)$, then $w \\in L(M)$.  \n  Suppose $w = a_1 b_1 \\dots a_k b_k$ with $a_1 \\dots a_k \\in A$ and $b_1 \\dots b_k \\in B$. Run $M$ on $w$. After reading the first symbol $a_1$, the state becomes $(\\delta_A(q_{0A}, a_1), q_{0B}, B)$. After reading $b_1$, it becomes $(\\delta_A(q_{0A}, a_1), \\delta_B(q_{0B}, b_1), A)$. Continuing this alternation, after processing all $2k$ symbols, the state is $(p, q, A)$ where:\n  - $p = \\delta_A(q_{0A}, a_1 \\dots a_k) \\in F_A$ (since $a_1 \\dots a_k \\in A$),\n  - $q = \\delta_B(q_{0B}, b_1 \\dots b_k) \\in F_B$ (since $b_1 \\dots b_k \\in B$).\n\n  Thus, $(p, q, A) \\in F$, so $M$ accepts $w$.\n\n- **Claim 2**: If $w \\in L(M)$, then $w \\in \\text{PS}(A,B)$.  \n  Suppose $M$ accepts $w$. Let the state sequence be:"
+          },
+          {
+            "type": "latex",
+            "content": "(q_{0A}, q_{0B}, A) \\xrightarrow{\\sigma_1} (p_1, q_{0B}, B) \\xrightarrow{\\sigma_2} (p_1, q_1, A) \\xrightarrow{\\sigma_3} \\dots \\xrightarrow{\\sigma_{2k}} (p_k, q_k, A),"
+          },
+          {
+            "type": "text",
+            "content": "where $(p_k, q_k, A) \\in F$. By construction, the odd-indexed symbols $\\sigma_1, \\sigma_3, \\dots, \\sigma_{2k-1}$ are exactly the transitions that update the $M_A$ component, and the even-indexed symbols $\\sigma_2, \\sigma_4, \\dots, \\sigma_{2k}$ update the $M_B$ component. Moreover, $p_k = \\delta_A(q_{0A}, \\sigma_1 \\sigma_3 \\dots \\sigma_{2k-1}) \\in F_A$ and $q_k = \\delta_B(q_{0B}, \\sigma_2 \\sigma_4 \\dots \\sigma_{2k}) \\in F_B$. Thus, letting $a_i = \\sigma_{2i-1}$ and $b_i = \\sigma_{2i}$, we have $a_1 \\dots a_k \\in A$ and $b_1 \\dots b_k \\in B$, so $w = \\sigma_1 \\dots \\sigma_{2k} \\in \\text{PS}(A,B)$.\n\nSince $M$ is a DFA recognizing $\\text{PS}(A,B)$, the perfect shuffle of two regular languages is regular. Therefore, the class of regular languages is closed under perfect shuffle."
+          }
+        ],
+        "marks": 5,
+        "visual_description": "None",
+        "slug": "regular_languages_closure_perfect_shuffle",
+        "review_notes": null
+      },
+      {
+        "id": "ab9ece61-22f8-4e33-b2f3-5498288c6a2d",
+        "question": [
+          {
+            "type": "text",
+            "content": "a) The derivative of a language for a string $x$ is defined as follows: $L_x = \\{y \\mid xy \\in L\\}$."
+          },
+          {
+            "type": "text",
+            "content": "1) What is $L_{aa}$ for the language $L = \\{a^{n+1}b^n \\mid n \\geq 1\\}$? (1 mark)"
+          },
+          {
+            "type": "text",
+            "content": "2) What is $L_b$ for the language $L = \\{a^{n+1}b^n \\mid n \\geq 1\\}$? (1 mark)"
+          },
+          {
+            "type": "text",
+            "content": "3) Prove that when $L$ is regular, the derivative of $L$ (i.e., $L_x$) is also regular. (3 marks)"
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### Part 1: Derivative $L_{aa}$ for $L = \\{ a^{n+1} b^n \\mid n \\ge 1 \\}$\n\nThe derivative of a language $L$ with respect to a string $x$ is defined as:\n$L_x = \\{ y \\mid xy \\in L \\}$.\nFor $L = \\{ a^{n+1} b^n \\mid n \\ge 1 \\}$, we compute $L_{aa} = \\{ y \\mid aa y \\in L \\}$.\n\nLet $aa y \\in L$. Then $aa y = a^{n+1} b^n$ for some $n \\ge 1$. Removing the prefix $aa$, we have:\n- If $n+1 = 2$, then $n=1$, so $y = b$.\n- If $n+1 > 2$, then $n > 1$, so $y = a^{(n+1)-2} b^n = a^{n-1} b^n$.\n\nThus, $L_{aa} = \\{ a^{n-1} b^n \\mid n \\ge 1 \\}$. Let $m = n-1$, so $n = m+1$ and $m \\ge 0$. Substituting:\n$L_{aa} = \\{ a^m b^{m+1} \\mid m \\ge 0 \\}$.\n\nAlternatively, renaming $m$ to $n$, we obtain:\n$\\boxed{L_{aa} = \\{ a^n b^{n+1} \\mid n \\ge 0 \\}}$."
+          },
+          {
+            "type": "text",
+            "content": "---"
+          },
+          {
+            "type": "text",
+            "content": "### Part 2: Derivative $L_b$ for $L = \\{ a^{n+1} b^n \\mid n \\ge 1 \\}$\n\nCompute $L_b = \\{ y \\mid b y \\in L \\}$. Every string in $L$ begins with at least two $a$'s (since $n \\ge 1$ implies $n+1 \\ge 2$). Therefore, no string in $L$ starts with $b$. Hence, there is no $y$ such that $b y \\in L$, and the derivative is empty:\n$\\boxed{L_b = \\emptyset}$."
+          },
+          {
+            "type": "text",
+            "content": "---"
+          },
+          {
+            "type": "text",
+            "content": "### Part 3: Proving Regularity of the Derivative\n\n**Theorem:** If $L$ is a regular language, then for any string $x$, the derivative $L_x = \\{ y \\mid xy \\in L \\}$ is also regular.\n\n**Proof:**  \nSince $L$ is regular, there exists a deterministic finite automaton (DFA) $M = (Q, \\Sigma, \\delta, q_0, F)$ such that $L(M) = L$. Fix an arbitrary string $x = x_1 x_2 \\dots x_k \\in \\Sigma^*$. Construct a new DFA $M_x = (Q, \\Sigma, \\delta, q_0^x, F)$ where:\n- The state set $Q$, alphabet $\\Sigma$, and transition function $\\delta$ are identical to those of $M$.\n- The initial state $q_0^x$ is defined as $\\delta^*(q_0, x)$, where $\\delta^*$ is the extended transition function (i.e., the state reached after processing $x$ from $q_0$).\n- The set of accepting states $F$ remains unchanged.\n\nWe claim that $L(M_x) = L_x$.\n\n**Proof of claim:**  \nLet $y \\in L(M_x)$. Then starting from $q_0^x$ and processing $y$, $M_x$ reaches an accepting state. Since $q_0^x = \\delta^*(q_0, x)$, processing $x$ from $q_0$ in $M$ leads to $q_0^x$, and then processing $y$ from $q_0^x$ leads to the same accepting state. Thus, $xy \\in L$, so $y \\in L_x$.  \nConversely, let $y \\in L_x$. Then $xy \\in L$, so starting from $q_0$ in $M$, processing $x$ yields $q_0^x$, and processing $y$ from $q_0^x$ yields an accepting state. By definition of $M_x$, starting from $q_0^x$ and processing $y$ also leads to an accepting state, so $y \\in L(M_x)$.\n\nHence, $L_x$ is accepted by the DFA $M_x$, and therefore $L_x$ is regular. \u220e\n\n**Alternative viewpoint:** This result is a special case of the closure of regular languages under quotient with a single string, which can be generalized to quotients with arbitrary languages. The constructive proof above explicitly demonstrates how to obtain a DFA for the derivative by simply changing the initial state."
+          }
+        ],
+        "marks": 5,
+        "visual_description": "None",
+        "slug": "regular_languages_derivatives",
+        "review_notes": null
+      },
+      {
+        "id": "1ac561a1-641f-4ab6-8c76-a85f26db444f",
+        "question": [
+          {
+            "type": "text",
+            "content": "Convert the following regular grammar into a non-deterministic finite automaton (NFA) without epsilon transitions:\n\n$S \\rightarrow aA \\mid bB$\n\n$A \\rightarrow aA \\mid bS \\mid c$\n\n$B \\rightarrow bB \\mid a$"
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### Solution\n\nThe given regular grammar is right-linear:\n- $S \\rightarrow aA \\mid bB$\n- $A \\rightarrow aA \\mid bS \\mid c$\n- $B \\rightarrow bB \\mid a$"
+          },
+          {
+            "type": "text",
+            "content": "To convert it into a non-deterministic finite automaton (NFA) without $\\varepsilon$-transitions, we define:\n- **States**: The nonterminals $\\{S, A, B\\}$ plus a new final state $F$.\n- **Start state**: $S$ (the initial nonterminal).\n- **Accepting state**: $F$.\n- **Alphabet**: $\\Sigma = \\{a, b, c\\}$.\n- **Transition function** $\\delta$ derived directly from the productions:"
+          },
+          {
+            "type": "html",
+            "content": "<table class=\"academic-table\">\n  <thead>\n    <tr>\n      <th>From State</th>\n      <th>Input Symbol</th>\n      <th>To State(s)</th>\n      <th>Derived From Production</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>$S$</td>\n      <td>$a$</td>\n      <td>$\\{A\\}$</td>\n      <td>$S \\rightarrow aA$</td>\n    </tr>\n    <tr>\n      <td>$S$</td>\n      <td>$b$</td>\n      <td>$\\{B\\}$</td>\n      <td>$S \\rightarrow bB$</td>\n    </tr>\n    <tr>\n      <td>$A$</td>\n      <td>$a$</td>\n      <td>$\\{A\\}$</td>\n      <td>$A \\rightarrow aA$</td>\n    </tr>\n    <tr>\n      <td>$A$</td>\n      <td>$b$</td>\n      <td>$\\{S\\}$</td>\n      <td>$A \\rightarrow bS$</td>\n    </tr>\n    <tr>\n      <td>$A$</td>\n      <td>$c$</td>\n      <td>$\\{F\\}$</td>\n      <td>$A \\rightarrow c$</td>\n    </tr>\n    <tr>\n      <td>$B$</td>\n      <td>$b$</td>\n      <td>$\\{B\\}$</td>\n      <td>$B \\rightarrow bB$</td>\n    </tr>\n    <tr>\n      <td>$B$</td>\n      <td>$a$</td>\n      <td>$\\{F\\}$</td>\n      <td>$B \\rightarrow a$</td>\n    </tr>\n    <tr>\n      <td>$F$</td>\n      <td>For all $x \\in \\Sigma$</td>\n      <td>$\\emptyset$</td>\n      <td>No outgoing transitions</td>\n    </tr>\n  </tbody>\n</table>"
+          },
+          {
+            "type": "text",
+            "content": "Note that each pair $(state, symbol)$ yields exactly one next state, so this NFA is actually deterministic (a DFA). However, since the construction from a regular grammar yields an NFA in general, and a DFA is a special case of an NFA, we present it as an NFA."
+          },
+          {
+            "type": "text",
+            "content": "> **Visual Representation of the NFA Diagram**\n>\n> - **States**: Represented as circles labeled $S$, $A$, $B$, and $F$.  \n>   - $S$ has an incoming arrow from nowhere indicating the start state.\n>   - $F$ is drawn with a double circle to indicate it is an accepting state.\n>\n> - **Transitions** (arrows labeled with input symbols):\n>   1. From $S$:  \n>      - An arrow labeled $a$ to state $A$.  \n>      - An arrow labeled $b$ to state $B$.\n>   2. From $A$:  \n>      - A self-loop arrow labeled $a$ (from $A$ to $A$).  \n>      - An arrow labeled $b$ to state $S$.  \n>      - An arrow labeled $c$ to state $F$.\n>   3. From $B$:  \n>      - A self-loop arrow labeled $b$ (from $B$ to $B$).  \n>      - An arrow labeled $a$ to state $F$.\n>   4. No outgoing arrows from $F$.\n>\n> - **Layout Suggestion**:  \n>   Place $S$ at the top center. Below and to the left, place $A$; below and to the right, place $B$. Place $F$ at the bottom center. Draw arrows accordingly, ensuring self-loops are clearly visible."
+          },
+          {
+            "type": "graphviz",
+            "content": "digraph G {\n  rankdir=TB;\n  node [shape=circle];\n  S [label=\"S\"];\n  A [label=\"A\"];\n  B [label=\"B\"];\n  F [label=\"F\", shape=doublecircle];\n  start [shape=point, width=0];\n  start -> S;\n  S -> A [label=\"a\"];\n  S -> B [label=\"b\"];\n  A -> A [label=\"a\"];\n  A -> S [label=\"b\"];\n  A -> F [label=\"c\"];\n  B -> B [label=\"b\"];\n  B -> F [label=\"a\"];\n  { rank=same; A; B; }\n}"
+          },
+          {
+            "type": "text",
+            "content": "**Formal Definition of the NFA**:\n- $Q = \\{S, A, B, F\\}$\n- $\\Sigma = \\{a, b, c\\}$\n- $\\delta: Q \\times \\Sigma \\to \\mathcal{P}(Q)$ as defined above.\n- $q_0 = S$\n- $F_{\\text{accept}} = \\{F\\}$\n\nThis NFA accepts exactly the language generated by the given regular grammar."
+          }
+        ],
+        "marks": 3,
+        "visual_description": "None",
+        "slug": "regular_grammar_to_nfa_conversion",
+        "review_notes": null
+      }
+    ],
+    "Module 3: Regular Expressions and Languages": [
+      {
+        "id": "cf5f78e0-2027-4250-8bef-962d28e61732",
+        "question": [
+          {
+            "type": "text",
+            "content": "b) Prove using the pumping lemma for regular languages that the following language is not regular: $L = \\{w \\in \\{0,1\\}^* \\mid w \\text{ contains more } 0\\text{'s than } 1\\text{'s}\\}$."
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### Proof that $L = \\{w \\in \\{0,1\\}^* \\mid w \\text{ contains more } 0\\text{'s than } 1\\text{'s}\\}$ is Not Regular\n\nWe use the **pumping lemma for regular languages**.  \nAssume, for the sake of contradiction, that $L$ is regular. Then there exists a pumping length $p > 0$ such that any string $s \\in L$ with $|s| \\geq p$ can be written as $s = xyz$, satisfying:\n\n1. $|y| > 0$,\n2. $|xy| \\leq p$,\n3. $\\forall i \\geq 0$, $xy^i z \\in L$."
+          },
+          {
+            "type": "latex",
+            "content": "s = 0^{\\,p+1} \\, 1^{\\,p}."
+          },
+          {
+            "type": "text",
+            "content": "- $s$ has $p+1$ zeros and $p$ ones, so $s \\in L$.\n- $|s| = (p+1) + p = 2p+1 \\geq p$.\n\nBy the pumping lemma, $s$ can be decomposed as $s = xyz$ with $|xy| \\leq p$ and $|y| > 0$. Since the first $p$ symbols of $s$ are zeros, both $x$ and $y$ consist entirely of zeros. Write"
+          },
+          {
+            "type": "latex",
+            "content": "x = 0^{\\,m}, \\quad y = 0^{\\,k} \\ \\text{ with } k > 0, \\quad \\text{and } m \\geq 0 \\text{ such that } m+k \\leq p."
+          },
+          {
+            "type": "text",
+            "content": "Then the remainder is"
+          },
+          {
+            "type": "latex",
+            "content": "z = 0^{\\,p+1 - m - k} \\, 1^{\\,p}."
+          },
+          {
+            "type": "text",
+            "content": "Now consider the pumped string for $i = 0$, i.e., $xy^0 z = xz$:"
+          },
+          {
+            "type": "latex",
+            "content": "xz = 0^{\\,m} \\, 0^{\\,p+1 - m - k} \\, 1^{\\,p} = 0^{\\,p+1 - k} \\, 1^{\\,p}."
+          },
+          {
+            "type": "text",
+            "content": "This string contains exactly $p+1 - k$ zeros and $p$ ones. Since $k \\geq 1$, we have"
+          },
+          {
+            "type": "latex",
+            "content": "p+1 - k \\leq p."
+          },
+          {
+            "type": "text",
+            "content": "Thus, the number of zeros in $xz$ is at most the number of ones. Specifically:\n- If $k = 1$, zeros $= p$, ones $= p$ \u2192 not more zeros than ones.\n- If $k > 1$, zeros $< p$ \u2192 definitely not more zeros than ones.\n\nHence, $xz \\notin L$, contradicting condition (3) of the pumping lemma, which requires $xy^i z \\in L$ for all $i \\geq 0$.\n\nTherefore, our assumption that $L$ is regular is false. **$L$ is not regular.** \u220e"
+          }
+        ],
+        "marks": 5,
+        "visual_description": "None",
+        "slug": "pumping_lemma_regular_languages_proof",
+        "review_notes": null
+      },
+      {
+        "id": "7a0865b5-3a19-479d-83ce-4f0d2194b71d",
+        "question": [
+          {
+            "type": "text",
+            "content": "b) Consider the language $L_1 = \\{a^p b^q a^r \\mid p,q,r \\geq 1 \\text{ and } p+q \\neq r\\}$. Prove or disprove that the language $L_1$ is regular."
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### Proof that $ L_1 = \\{ a^p b^q a^r \\mid p,q,r \\ge 1 \\text{ and } p+q \\ne r \\} $ is Not Regular\n\nWe will prove that $ L_1 $ is **not regular** using the **Myhill\u2013Nerode theorem**.  \nThis theorem states that a language is regular if and only if it has a finite number of equivalence classes under the relation $ \\equiv_L $, where two strings $ x $ and $ y $ are equivalent if for every string $ z $, $ xz \\in L \\iff yz \\in L $.  \nEquivalently, if we can find an infinite set of strings that are pairwise distinguishable with respect to $ L $, then $ L $ is not regular."
+          },
+          {
+            "type": "latex",
+            "content": "S = \\{ a^i \\mid i \\ge 1 \\}."
+          },
+          {
+            "type": "text",
+            "content": "Clearly, $ S $ is infinite."
+          },
+          {
+            "type": "text",
+            "content": "#### Step 2: Show that any two distinct strings in $ S $ are distinguishable  \nTake any two distinct integers $ i, j \\ge 1 $ with $ i \\ne j $. Without loss of generality, assume $ i < j $.  \nWe will find a string $ w $ such that exactly one of $ a^i w $ and $ a^j w $ belongs to $ L_1 $."
+          },
+          {
+            "type": "latex",
+            "content": "w = b \\, a^{i+1}."
+          },
+          {
+            "type": "text",
+            "content": "Now examine the two strings:"
+          },
+          {
+            "type": "latex",
+            "content": "a^i w = a^i b a^{i+1}."
+          },
+          {
+            "type": "text",
+            "content": "Here, $ p = i $, $ q = 1 $, and $ r = i+1 $.  \nThen $ p+q = i + 1 = r $.  \nSince the condition for $ L_1 $ requires $ p+q \\ne r $, we have $ a^i w \\notin L_1 $."
+          },
+          {
+            "type": "latex",
+            "content": "a^j w = a^j b a^{i+1}."
+          },
+          {
+            "type": "text",
+            "content": "Here, $ p = j $, $ q = 1 $, and $ r = i+1 $.  \nBecause $ j > i $, we have $ j \\ge i+1 $, so  \n$ p+q = j + 1 \\ge i + 2 > i+1 = r $.  \nThus, $ p+q \\ne r $, and therefore $ a^j w \\in L_1 $."
+          },
+          {
+            "type": "text",
+            "content": "We have shown that $ a^i w \\notin L_1 $ while $ a^j w \\in L_1 $.  \nHence, $ a^i $ and $ a^j $ are **distinguishable** with respect to $ L_1 $.\n\nSince $ i $ and $ j $ were arbitrary distinct indices, **every pair of distinct strings in $ S $ is distinguishable**."
+          },
+          {
+            "type": "text",
+            "content": "#### Step 3: Apply the Myhill\u2013Nerode theorem  \nThe set $ S $ is an infinite set of pairwise distinguishable strings for $ L_1 $.  \nBy the Myhill\u2013Nerode theorem, $ L_1 $ cannot be regular."
+          },
+          {
+            "type": "text",
+            "content": "---\n\n#### Alternative approach via closure properties (sketch)  \nOne could also argue by contradiction:  \nIf $ L_1 $ were regular, then its complement relative to the regular language $ a^+ b^+ a^+ $ would also be regular. That complement is  \n$ L_2 = \\{ a^p b^q a^r \\mid p,q,r \\ge 1 \\text{ and } p+q = r \\} $.\nIt is straightforward to show (e.g., via the pumping lemma) that $ L_2 $ is not regular.  \nTherefore, $ L_1 $ cannot be regular either."
+          },
+          {
+            "type": "text",
+            "content": "---\n\n### Conclusion  \nThe language $ L_1 $ is **not regular**."
+          }
+        ],
+        "marks": 5,
+        "visual_description": "None",
+        "slug": "regular_language_proof_disproof",
+        "review_notes": null
+      },
+      {
+        "id": "0eec4665-dc50-45a3-9d57-fe20abb05d9a",
+        "question": [
+          {
+            "type": "text",
+            "content": "a) Using the pumping lemma for regular languages, prove whether the language $L = \\{a^n b^n c^n \\mid n \\geq 1\\}$ is regular or not."
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### a) Using the pumping lemma for regular languages, prove that the language  \n$ L = \\{ a^n b^n c^n \\mid n \\geq 1 \\} $ is regular or not.\n\n**Proof:**  \nWe will show that $ L $ is **not** regular using the pumping lemma for regular languages.\n\n**Pumping Lemma (for Regular Languages):**  \nIf $ L $ is a regular language, then there exists a positive integer $ p $ (the pumping length) such that any string $ s \\in L $ with $ |s| \\geq p $ can be written as $ s = xyz $, satisfying:\n\n1. $ |xy| \\leq p $,\n2. $ |y| > 0 $,\n3. $ xy^i z \\in L $ for all $ i \\geq 0 $.\n\n---"
+          },
+          {
+            "type": "latex",
+            "content": "s = a^p b^p c^p."
+          },
+          {
+            "type": "text",
+            "content": "Clearly, $ s \\in L $ (with $ n = p $) and $ |s| = 3p \\geq p $.\n\nBy the pumping lemma, $ s $ can be decomposed into $ s = xyz $, where:\n\n- $ |xy| \\leq p $,\n- $ |y| > 0 $,\n- $ xy^i z \\in L $ for all $ i \\geq 0 $.\n\nSince the first $ p $ symbols of $ s $ are $ a $'s and $ |xy| \\leq p $, both $ x $ and $ y $ consist entirely of $ a $'s. Thus, we can write"
+          },
+          {
+            "type": "latex",
+            "content": "y = a^k \\quad \\text{for some integer } k \\text{ with } 1 \\leq k \\leq p."
+          },
+          {
+            "type": "text",
+            "content": "Now, consider the case $ i = 0 $. The pumped string becomes"
+          },
+          {
+            "type": "latex",
+            "content": "xy^0 z = xz."
+          },
+          {
+            "type": "text",
+            "content": "Removing $ y $ reduces the number of $ a $'s from $ p $ to $ p - k $, while the numbers of $ b $'s and $ c $'s remain unchanged at $ p $ each. Hence,"
+          },
+          {
+            "type": "latex",
+            "content": "xz = a^{p-k} b^p c^p."
+          },
+          {
+            "type": "text",
+            "content": "For $ xz $ to be in $ L $, we must have an equal number of $ a $'s, $ b $'s, and $ c $'s, i.e.,"
+          },
+          {
+            "type": "latex",
+            "content": "p - k = p = p."
+          },
+          {
+            "type": "text",
+            "content": "This implies $ k = 0 $, which contradicts the condition $ |y| > 0 $ (since $ k \\geq 1 $).\n\nTherefore, $ xz \\notin L $, violating condition (3) of the pumping lemma. This contradiction shows that our initial assumption\u2014that $ L $ is regular\u2014is false.\n\nHence, $ L $ is **not** a regular language."
+          }
+        ],
+        "marks": 7,
+        "visual_description": "None",
+        "slug": "pumping_lemma_regular_languages",
+        "review_notes": null
+      },
+      {
+        "id": "261f9b16-59c3-42bc-901b-a91e01deeddb",
+        "question": [
+          {
+            "type": "text",
+            "content": "b) Consider the homomorphism $h$ from the alphabet $\\{0,1,2\\}$ to $\\{a,b\\}$ defined by: $h(0)=ab$, $h(1)=b$, $h(2)=aa$."
+          },
+          {
+            "type": "text",
+            "content": "1. What is $h(0210)$ and $h(2201)$? (2 marks)"
+          },
+          {
+            "type": "text",
+            "content": "2. If $L$ is the language $(ab+baa)^*bab$, what is $h^{-1}(L)$? (1 mark)"
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### 1. Computing Homomorphic Images\n\nGiven homomorphism $h: \\{0,1,2\\}^* \\to \\{a,b\\}^*$ defined by:\n- $h(0) = ab$\n- $h(1) = b$\n- $h(2) = aa$"
+          },
+          {
+            "type": "text",
+            "content": "**1.1. $h(0210)$**"
+          },
+          {
+            "type": "latex",
+            "content": "\\begin{aligned}\nh(0210) &= h(0) \\cdot h(2) \\cdot h(1) \\cdot h(0) \\\\\n&= ab \\cdot aa \\cdot b \\cdot ab \\\\\n&= abaabab.\n\\end{aligned}"
+          },
+          {
+            "type": "text",
+            "content": "**1.2. $h(2201)$**"
+          },
+          {
+            "type": "latex",
+            "content": "\\begin{aligned}\nh(2201) &= h(2) \\cdot h(2) \\cdot h(0) \\cdot h(1) \\\\\n&= aa \\cdot aa \\cdot ab \\cdot b \\\\\n&= aaaaabb.\n\\end{aligned}"
+          },
+          {
+            "type": "text",
+            "content": "Thus:\n- $h(0210) = abaabab$\n- $h(2201) = aaaaabb$"
+          },
+          {
+            "type": "text",
+            "content": "### 2. Inverse Homomorphic Image of $L$\n\nGiven language $L = (ab + baa)^* \\, bab$ over $\\{a,b\\}$. We seek:\n$h^{-1}(L) = \\{ x \\in \\{0,1,2\\}^* \\mid h(x) \\in L \\}$."
+          },
+          {
+            "type": "text",
+            "content": "#### Step-by-Step Analysis\n\n- $L$ consists of strings formed by concatenating zero or more blocks from $\\{ab, baa\\}$, followed by the suffix $bab$.\n- Mapping under $h$:\n  - $h(0) = ab$\n  - $h(1) = b$\n  - $h(2) = aa$\n- To form blocks of $L$:\n  - The block $ab$ is exactly the image of $0$.\n  - The block $baa$ is the image of the sequence $12$: $h(12) = h(1)h(2) = b \\cdot aa = baa$.\n  - The final suffix $bab$ is the image of the sequence $10$: $h(10) = h(1)h(0) = b \\cdot ab = bab$.\n- For $h(x)$ to be in $L$, the string $x$ must:\n  - End with the sequence $10$ (to produce the final $bab$).\n  - Before that, consist of concatenations of valid blocks corresponding to $ab$ or $baa$, i.e., single $0$s or pairs $12$.\n- Additionally:\n  - No isolated $1$ or $2$ can appear, as they would produce substrings not alignable with blocks of $L$.\n  - Specifically, every $1$ in the prefix (before the last two symbols) must be followed by $2$ to form $baa$, and every $2$ must be preceded by $1$.\n  - The sequence $10$ can only appear at the very end."
+          },
+          {
+            "type": "text",
+            "content": "Thus, any $x \\in h^{-1}(L)$ has the form:\n$x = y \\cdot 10$,\nwhere $y$ is any string over $\\{0,12\\}$ (treating $12$ as a unit). In regular expression notation over $\\{0,1,2\\}$:\n$h^{-1}(L) = (0 + 12)^* \\, 10$."
+          },
+          {
+            "type": "text",
+            "content": "#### Verification\n- $x = 10$: $h(10) = bab \\in L$\n- $x = 010$: $h(010) = ab \\cdot b \\cdot ab = abbab = ab\\,bab \\in L$\n- $x = 1210$: $h(1210) = baa \\cdot bab = baabab \\in L$\n- $x = 012010$: $h(012010) = ab \\cdot baa \\cdot ab \\cdot bab = ab\\,baa\\,ab\\,bab \\in L$\n\nAll satisfy the structure."
+          },
+          {
+            "type": "text",
+            "content": "### Final Answer\n\n1. $h(0210) = abaabab$, $h(2201) = aaaaabb$.\n2. $h^{-1}(L) = (0 + 12)^* \\, 10$."
+          }
+        ],
+        "marks": 3,
+        "visual_description": "None",
+        "slug": "homomorphism_language_inverse",
+        "review_notes": null
+      }
+    ],
+    "Module 4: Context Free Grammars": [
+      {
+        "id": "397d9138-3baf-410b-97c9-66d6821bf311",
+        "question": [
+          {
+            "type": "text",
+            "content": "(a) Design a CFG for the language $L = \\{w w^R z z^R \\mid w, z \\in \\{0,1\\}^+, 011$ is a substring of $w$ and $|z|$ is odd, $w^R$ is the reverse of $w$, $z^R$ is the reverse of $z\\}$. Explain the use of each production in the constructed grammar?"
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### Solution\n\nWe construct a context-free grammar (CFG) for the language  \n$L = \\{ w w^R z z^R \\mid w, z \\in \\{0,1\\}^+,\\; \\text{\"011\" is a substring of } w,\\; |z| \\text{ is odd} \\}$,  \nwhere $w^R$ and $z^R$ denote the reverses of $w$ and $z$, respectively."
+          },
+          {
+            "type": "text",
+            "content": "#### Grammar\n\nLet the grammar be $G = (V, \\Sigma, P, S)$, where:\n- $V = \\{S, A, B, C, D, E\\}$ is the set of nonterminals,\n- $\\Sigma = \\{0,1\\}$ is the terminal alphabet,\n- $S$ is the start symbol,\n- $P$ consists of the following productions:"
+          },
+          {
+            "type": "latex",
+            "content": "S \\rightarrow A B"
+          },
+          {
+            "type": "latex",
+            "content": "A \\rightarrow 0A0 \\mid 1A1 \\mid D"
+          },
+          {
+            "type": "latex",
+            "content": "D \\rightarrow 011 \\, E \\, 110"
+          },
+          {
+            "type": "latex",
+            "content": "E \\rightarrow 0E0 \\mid 1E1 \\mid \\varepsilon"
+          },
+          {
+            "type": "latex",
+            "content": "B \\rightarrow 0C0 \\mid 1C1 \\mid 00 \\mid 11"
+          },
+          {
+            "type": "latex",
+            "content": "C \\rightarrow 0B0 \\mid 1B1"
+          },
+          {
+            "type": "text",
+            "content": "#### Explanation of Productions"
+          },
+          {
+            "type": "text",
+            "content": "1. **$S \\rightarrow A B$**  \n   The start symbol generates the entire string by concatenating the $w w^R$ part (generated by $A$) and the $z z^R$ part (generated by $B$)."
+          },
+          {
+            "type": "text",
+            "content": "2. **$A \\rightarrow 0A0 \\mid 1A1 \\mid D$**  \n   The nonterminal $A$ generates strings of the form $w w^R$ where $w$ contains the substring \"011\".  \n   - The recursive productions $A \\rightarrow 0A0$ and $A \\rightarrow 1A1$ add matching symbols on both ends, building the palindrome from the outside in. Each added pair corresponds to adding a symbol at the beginning of $w$ and a symbol at the end of $w^R$.  \n   - The production $A \\rightarrow D$ switches to $D$, which introduces the required substring \"011\" (and its reverse \"110\") into the middle."
+          },
+          {
+            "type": "text",
+            "content": "3. **$D \\rightarrow 011 \\, E \\, 110$**  \n   This production inserts \"011\" on the left and \"110\" on the right, ensuring that $w$ contains \"011\". The nonterminal $E$ generates a palindrome $y y^R$ that appears between them, allowing $w$ to have additional symbols after \"011\"."
+          },
+          {
+            "type": "text",
+            "content": "4. **$E \\rightarrow 0E0 \\mid 1E1 \\mid \\varepsilon$**  \n   $E$ generates palindromes of the form $y y^R$ (including the empty string) by adding matching symbols on both ends. When $E$ derives $\\varepsilon$, the minimal string from $D$ is $011110$."
+          },
+          {
+            "type": "text",
+            "content": "5. **$B \\rightarrow 0C0 \\mid 1C1 \\mid 00 \\mid 11$**  \n   $B$ generates strings of the form $z z^R$ with $|z|$ odd.  \n   - The base productions $B \\rightarrow 00$ and $B \\rightarrow 11$ correspond to $z = 0$ or $z = 1$ (length $1$, odd).  \n   - The productions $B \\rightarrow 0C0$ and $B \\rightarrow 1C1$ add a pair of matching symbols and switch to $C$, which preserves the parity condition."
+          },
+          {
+            "type": "text",
+            "content": "6. **$C \\rightarrow 0B0 \\mid 1B1$**  \n   $C$ generates strings of the form $z z^R$ with $|z|$ even. Adding a pair via $C \\rightarrow 0B0$ or $1B1$ increases $|z|$ by $1$ (making it odd again) and returns to $B$. The alternation ensures $B$ always produces odd-length $z$."
+          },
+          {
+            "type": "text",
+            "content": "#### Correctness Sketch"
+          },
+          {
+            "type": "text",
+            "content": "- **$A$ generates $w w^R$ with \"011\" in $w$**:  \n  Any derivation of $A$ eventually uses $A \\rightarrow D$, producing a string of the form $x \\, 011 \\, y y^R \\, 110 \\, x^R$ where $x$ is added by the recursive $A$ productions. The left half is $x 011 y$, which contains \"011\"; the right half is its reverse."
+          },
+          {
+            "type": "text",
+            "content": "- **$B$ generates $z z^R$ with $|z|$ odd**:  \n  The alternating structure of $B$ and $C$ ensures $B$ always yields odd-length $z$. Base cases give $|z|=1$, and each pair of steps adds two symbols, increasing $|z|$ by $1$ while maintaining odd parity."
+          },
+          {
+            "type": "text",
+            "content": "- **Concatenation**:  \n  Since $S \\rightarrow A B$, the grammar generates all strings $w w^R z z^R$ meeting the conditions.\n\nThis CFG correctly generates the language $L$."
+          }
+        ],
+        "marks": 5,
+        "visual_description": "None",
+        "slug": "context_free_grammar_language_design",
+        "review_notes": null
+      },
+      {
+        "id": "4b59b5bf-bc00-4fb0-9b19-d699e74ca580",
+        "question": [
+          {
+            "type": "text",
+            "content": "(b) Convert the given context-free grammar G into an equivalent context-free grammar G1 in Chomsky normal form (CNF).\n\n$S \\rightarrow aXbX$\n\n$X \\rightarrow aY \\mid bX \\mid \\lambda$\n\n$Y \\rightarrow X \\mid c$\n\nMarks: 5"
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### Solution: Conversion to Chomsky Normal Form (CNF)\n\nWe convert the given context-free grammar $G$ into an equivalent grammar $G_1$ in Chomsky Normal Form (CNF). The original grammar $G$ is:"
+          },
+          {
+            "type": "latex",
+            "content": "\\begin{aligned}\nS &\\to aXbX \\\\\nX &\\to aY \\mid bX \\mid \\lambda \\\\\nY &\\to X \\mid c\n\\end{aligned}"
+          },
+          {
+            "type": "text",
+            "content": "#### Step 1: Eliminate \u03bb-Productions\n\nIdentify nullable non-terminals:\n- $X \\to \\lambda$, so $X$ is nullable.\n- $Y \\to X$ and $X$ is nullable, so $Y$ is nullable.\n\nRemove $X \\to \\lambda$ and add new productions to account for omissions of nullable symbols:\n\n- For $S \\to aXbX$:\n  - Omit first $X$: $S \\to abX$\n  - Omit second $X$: $S \\to aXb$\n  - Omit both: $S \\to ab$\n  - Keep original: $S \\to aXbX$\n\n- For $X \\to aY$: Add $X \\to a$ (omit $Y$).\n- For $X \\to bX$: Add $X \\to b$ (omit $X$).\n\n- For $Y \\to X$: No new \u03bb-production is added.\n\nAfter elimination, the grammar becomes:"
+          },
+          {
+            "type": "latex",
+            "content": "\\begin{aligned}\nS &\\to aXbX \\mid abX \\mid aXb \\mid ab \\\\\nX &\\to aY \\mid a \\mid bX \\mid b \\\\\nY &\\to X \\mid c\n\\end{aligned}"
+          },
+          {
+            "type": "text",
+            "content": "#### Step 2: Eliminate Unit Productions\n\nUnit production: $Y \\to X$. Replace $Y \\to X$ with all productions of $X$:"
+          },
+          {
+            "type": "latex",
+            "content": "\\begin{aligned}\nY &\\to aY \\mid a \\mid bX \\mid b \\mid c\n\\end{aligned}"
+          },
+          {
+            "type": "text",
+            "content": "Updated grammar:"
+          },
+          {
+            "type": "latex",
+            "content": "\\begin{aligned}\nS &\\to aXbX \\mid abX \\mid aXb \\mid ab \\\\\nX &\\to aY \\mid a \\mid bX \\mid b \\\\\nY &\\to aY \\mid a \\mid bX \\mid b \\mid c\n\\end{aligned}"
+          },
+          {
+            "type": "text",
+            "content": "#### Step 3: Convert to CNF\n\nIntroduce new non-terminals for terminals appearing in rules with length > 1:\n- $A \\to a$\n- $B \\to b$\n\nReplace terminals in longer rules:\n\n- $S \\to aXbX$: Becomes $S \\to A X B X$. Introduce $P \\to A X$ and $Q \\to B X$, then $S \\to P Q$.\n- $S \\to abX$: Becomes $S \\to A B X$. Introduce $R \\to A B$, then $S \\to R X$.\n- $S \\to aXb$: Becomes $S \\to A X B$. Use $P \\to A X$, then $S \\to P B$.\n- $S \\to ab$: Becomes $S \\to A B$.\n- $X \\to aY$: Becomes $X \\to A Y$.\n- $X \\to bX$: Becomes $X \\to B X$.\n- $Y \\to aY$: Becomes $Y \\to A Y$.\n- $Y \\to bX$: Becomes $Y \\to B X$.\n\nRules with single terminals remain unchanged.\n\nThe final grammar $G_1$ in CNF is:\n\n**Non-terminals:** $S, X, Y, A, B, P, Q, R$\n\n**Terminals:** $a, b, c$\n\n**Productions:**"
+          },
+          {
+            "type": "latex",
+            "content": "\\begin{aligned}\nS &\\to P Q \\mid R X \\mid P B \\mid A B \\\\\nP &\\to A X \\\\\nQ &\\to B X \\\\\nR &\\to A B \\\\\nX &\\to A Y \\mid a \\mid B X \\mid b \\\\\nY &\\to A Y \\mid a \\mid B X \\mid b \\mid c \\\\\nA &\\to a \\\\\nB &\\to b\n\\end{aligned}"
+          },
+          {
+            "type": "text",
+            "content": "All productions are of the form $A \\to BC$ or $A \\to a$, satisfying CNF requirements. The grammar is free of \u03bb-productions, unit productions, and useless symbols."
+          }
+        ],
+        "marks": 5,
+        "visual_description": "None",
+        "slug": "chomsky_normal_form_conversion",
+        "review_notes": null
+      },
+      {
+        "id": "d04bab4b-9d59-4c5b-a1be-f06e4d95f761",
+        "question": [
+          {
+            "type": "text",
+            "content": "(a) Show that the language $L = \\{\\beta\\#\\beta^R\\#\\beta \\mid \\Sigma = \\{a, c, \\#\\} \\text{ and } \\beta \\in \\{a, c\\}^*\\}$ is not context-free ($\\beta^R$ is the reverse of $\\beta$)."
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "We prove that $L = \\{\\beta\\#\\beta^R\\#\\beta \\mid \\beta \\in \\{a,c\\}^*\\}$ is not context-free using the pumping lemma for context-free languages."
+          },
+          {
+            "type": "text",
+            "content": "---"
+          },
+          {
+            "type": "text",
+            "content": "### Proof via the Pumping Lemma"
+          },
+          {
+            "type": "text",
+            "content": "Assume for contradiction that $L$ is context-free. Then by the pumping lemma, there exists a pumping length $p > 0$ such that any string $s \\in L$ with $|s| \\geq p$ can be written as $s = uvwxy$ satisfying:"
+          },
+          {
+            "type": "text",
+            "content": "1. $|vwx| \\leq p$,\n2. $|vx| \\geq 1$,\n3. $uv^i w x^i y \\in L$ for all $i \\geq 0$."
+          },
+          {
+            "type": "latex",
+            "content": "s = a^p c^p \\# c^p a^p \\# a^p c^p"
+          },
+          {
+            "type": "text",
+            "content": "Choose the string  \nClearly $s \\in L$ with $\\beta = a^p c^p$. The length of $s$ is $6p+2 \\geq p$."
+          },
+          {
+            "type": "text",
+            "content": "Consider any decomposition $s = uvwxy$ satisfying the conditions. Since $|vwx| \\leq p$, the substring $vwx$ cannot contain both $\\#$ symbols (as the distance between the two $\\#$ symbols is $2p+1 > p$). We analyze all possible placements of $vwx$ and show that pumping leads to a string not in $L$."
+          },
+          {
+            "type": "text",
+            "content": "#### Case 1: $vwx$ lies entirely within the first $\\beta$ (i.e., within $a^p c^p$ before the first $\\#$)."
+          },
+          {
+            "type": "text",
+            "content": "Pumping changes only the first $\\beta$. For $i = 0$ or $i = 2$, the first part becomes $\\beta' \\neq \\beta$, while the third part remains $\\beta$. Thus, the pumped string has the form $\\beta'\\#\\beta^R\\#\\beta$, where $\\beta' \\neq \\beta$. This violates the condition that the first and third parts must be equal. Hence, $uv^i w x^i y \\notin L$."
+          },
+          {
+            "type": "text",
+            "content": "#### Case 2: $vwx$ contains the first $\\#$."
+          },
+          {
+            "type": "text",
+            "content": "Since $|vwx| \\leq p$, it contains exactly one $\\#$. We consider subcases based on whether $v$ or $x$ includes the $\\#$."
+          },
+          {
+            "type": "text",
+            "content": "- **Subcase 2.1:** Either $v$ or $x$ contains the $\\#$.  \n  Pumping ($i = 0$ or $i = 2$) alters the number of $\\#$ symbols. If the $\\#$ is removed ($i=0$), the resulting string has only one $\\#$; if duplicated ($i=2$), it has three $\\#$ symbols. Both outcomes deviate from the required format $\\beta\\#\\beta^R\\#\\beta$ (exactly two $\\#$ symbols), so $uv^i w x^i y \\notin L$."
+          },
+          {
+            "type": "text",
+            "content": "- **Subcase 2.2:** The $\\#$ lies entirely within $w$ (so $v$ and $x$ consist of symbols from the first and second parts, respectively).  \n  Pumping changes the first and second parts near the $\\#$ but leaves the third part unchanged. For $i \\neq 1$, the first part becomes $\\beta' \\neq \\beta$, while the third part remains $\\beta$. Thus, $\\beta' \\neq \\beta$, and the condition that the first and third parts are equal fails. Moreover, the middle part is modified and is no longer the reverse of $\\beta'$. Hence, $uv^i w x^i y \\notin L$."
+          },
+          {
+            "type": "text",
+            "content": "#### Case 3: $vwx$ lies entirely within the second $\\beta$ (i.e., within $c^p a^p$ between the two $\\#$ symbols)."
+          },
+          {
+            "type": "text",
+            "content": "Pumping changes only the middle part. For $i \\neq 1$, the middle part becomes a string that is not the reverse of the first part (which is unchanged). Thus, the pumped string does not satisfy $\\beta^R$ in the middle, so $uv^i w x^i y \\notin L$."
+          },
+          {
+            "type": "text",
+            "content": "#### Case 4: $vwx$ contains the second $\\#$."
+          },
+          {
+            "type": "text",
+            "content": "Symmetric to Case 2. If $v$ or $x$ contains the $\\#$, pumping changes the number of $\\#$ symbols, leading to an invalid format. If the $\\#$ is in $w$, pumping alters the second and third parts while leaving the first part unchanged. Then the first and third parts become unequal, so $uv^i w x^i y \\notin L$."
+          },
+          {
+            "type": "text",
+            "content": "#### Case 5: $vwx$ lies entirely within the third $\\beta$ (i.e., within $a^p c^p$ after the second $\\#$)."
+          },
+          {
+            "type": "text",
+            "content": "Pumping changes only the third part. For $i \\neq 1$, the third part becomes $\\beta'' \\neq \\beta$, while the first part remains $\\beta$. Hence, the first and third parts are unequal, and $uv^i w x^i y \\notin L$."
+          },
+          {
+            "type": "text",
+            "content": "In every possible case, there exists some $i \\geq 0$ (typically $i=0$ or $i=2$) such that $uv^i w x^i y \\notin L$. This contradicts the pumping lemma. Therefore, $L$ is not context-free. \u220e"
+          }
+        ],
+        "marks": 5,
+        "visual_description": "None",
+        "slug": "context_free_languages_pumping_lemma",
+        "review_notes": null
+      },
+      {
+        "id": "23f0e178-06f9-4fe7-b589-5759885705af",
+        "question": [
+          {
+            "type": "text",
+            "content": "(b) Given that language $L$ is defined as $L = \\{a^n b^n c^n \\mid n \\geq 0\\}$ over $\\Sigma = \\{a, b, c\\}$, write $L$ as the intersection of two context-free languages."
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "Let $L = \\{ a^n b^n c^n \\mid n \\geq 0 \\}$ over $\\Sigma = \\{a, b, c\\}$. This language is not context-free, but it can be expressed as the intersection of two context-free languages. Define:"
+          },
+          {
+            "type": "latex",
+            "content": "L_1 = \\{ a^n b^n c^m \\mid n, m \\geq 0 \\}"
+          },
+          {
+            "type": "latex",
+            "content": "L_2 = \\{ a^m b^n c^n \\mid n, m \\geq 0 \\}"
+          },
+          {
+            "type": "text",
+            "content": "Both $L_1$ and $L_2$ are context-free. For example, $L_1$ is generated by the context-free grammar:"
+          },
+          {
+            "type": "latex",
+            "content": "S \\to XC \\\\\nX \\to aXb \\mid \\varepsilon \\\\\nC \\to cC \\mid \\varepsilon"
+          },
+          {
+            "type": "text",
+            "content": "Similarly, $L_2$ is generated by:"
+          },
+          {
+            "type": "latex",
+            "content": "S \\to AY \\\\\nY \\to bYc \\mid \\varepsilon \\\\\nA \\to aA \\mid \\varepsilon"
+          },
+          {
+            "type": "text",
+            "content": "The intersection $L_1 \\cap L_2$ consists of strings that are both in $L_1$ and $L_2$. A string $a^i b^j c^k$ is in $L_1$ if $i = j$, and in $L_2$ if $j = k$. Thus, it must satisfy $i = j = k$, yielding exactly $L$. Therefore:"
+          },
+          {
+            "type": "latex",
+            "content": "L = L_1 \\cap L_2"
+          },
+          {
+            "type": "text",
+            "content": "This demonstrates that the intersection of two context-free languages can be non-context-free."
+          }
+        ],
+        "marks": 5,
+        "visual_description": "None",
+        "slug": "context_free_languages_intersection",
+        "review_notes": null
+      },
+      {
+        "id": "d28509f0-0e10-4de0-a28e-95b63ad35a77",
+        "question": [
+          {
+            "type": "text",
+            "content": "Given the context-free grammar with start symbol $A$: $A \\rightarrow BA \\mid AC \\mid a$, $B \\rightarrow CB \\mid BA \\mid b$, $C \\rightarrow AC \\mid CB \\mid a$, apply the CYK algorithm to determine if the string 'abbaa' is generated by the grammar. Construct the CYK table and list the set of nonterminals in each cell. Show all steps for full credit."
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "The given grammar is already in Chomsky Normal Form (CNF) since all production rules are of the form $A \\rightarrow BC$ or $A \\rightarrow a$, where $A, B, C$ are nonterminals and $a$ is a terminal. The string to test is $w = abbaa$ with length $n = 5$. The CYK algorithm constructs a table $T[i,j]$ for $1 \\leq i \\leq j \\leq n$, where $T[i,j]$ contains all nonterminals that generate the substring from position $i$ to $j$."
+          },
+          {
+            "type": "text",
+            "content": "### Step 1: Initialize for Length-1 Substrings\nFor each $i$, $T[i,i]$ is the set of nonterminals with a rule $A \\rightarrow w_i$."
+          },
+          {
+            "type": "text",
+            "content": "- $w_1 = a$: Rules $A \\rightarrow a$ and $C \\rightarrow a$ \u21d2 $T[1,1] = \\{A, C\\}$\n- $w_2 = b$: Rule $B \\rightarrow b$ \u21d2 $T[2,2] = \\{B\\}$\n- $w_3 = b$: Rule $B \\rightarrow b$ \u21d2 $T[3,3] = \\{B\\}$\n- $w_4 = a$: Rules $A \\rightarrow a$ and $C \\rightarrow a$ \u21d2 $T[4,4] = \\{A, C\\}$\n- $w_5 = a$: Rules $A \\rightarrow a$ and $C \\rightarrow a$ \u21d2 $T[5,5] = \\{A, C\\}$"
+          },
+          {
+            "type": "text",
+            "content": "### Step 2: Length-2 Substrings\nFor each $i$, $j = i+1$, consider split $k = i$.  \n$T[i,j] = \\{ X \\mid X \\rightarrow YZ \\text{ with } Y \\in T[i,i], Z \\in T[i+1,i+1] \\}$"
+          },
+          {
+            "type": "text",
+            "content": "- **$T[1,2]$** ($ab$):  \n  $T[1,1] = \\{A,C\\}$, $T[2,2] = \\{B\\}$  \n  Pairs: $(A,B)$, $(C,B)$  \n  Rules:  \n  - $(C,B)$: $B \\rightarrow CB$ and $C \\rightarrow CB$ \u21d2 $\\{B,C\\}$  \n  - $(A,B)$: No rule $X \\rightarrow AB$  \n  \u21d2 $T[1,2] = \\{B, C\\}$"
+          },
+          {
+            "type": "text",
+            "content": "- **$T[2,3]$** ($bb$):  \n  $T[2,2] = \\{B\\}$, $T[3,3] = \\{B\\}$  \n  Pairs: $(B,B)$  \n  No rule $X \\rightarrow BB$ \u21d2 $T[2,3] = \\emptyset$"
+          },
+          {
+            "type": "text",
+            "content": "- **$T[3,4]$** ($ba$):  \n  $T[3,3] = \\{B\\}$, $T[4,4] = \\{A,C\\}$  \n  Pairs: $(B,A)$, $(B,C)$  \n  Rules for $(B,A)$: $A \\rightarrow BA$ and $B \\rightarrow BA$ \u21d2 $\\{A,B\\}$  \n  No rule for $(B,C)$ \u21d2 $T[3,4] = \\{A, B\\}$"
+          },
+          {
+            "type": "text",
+            "content": "- **$T[4,5]$** ($aa$):  \n  $T[4,4] = \\{A,C\\}$, $T[5,5] = \\{A,C\\}$  \n  Pairs: $(A,A)$, $(A,C)$, $(C,A)$, $(C,C)$  \n  Rules for $(A,C)$: $A \\rightarrow AC$ and $C \\rightarrow AC$ \u21d2 $\\{A,C\\}$  \n  No rules for others \u21d2 $T[4,5] = \\{A, C\\}$"
+          },
+          {
+            "type": "text",
+            "content": "### Step 3: Length-3 Substrings\nFor each $i$, $j = i+2$, consider splits $k = i$ and $k = i+1$."
+          },
+          {
+            "type": "text",
+            "content": "- **$T[1,3]$** ($abb$):  \n  - $k=1$: $T[1,1] = \\{A,C\\}$, $T[2,3] = \\emptyset$ \u21d2 no contributions.  \n  - $k=2$: $T[1,2] = \\{B,C\\}$, $T[3,3] = \\{B\\}$  \n    Pairs: $(B,B)$, $(C,B)$  \n    Rules for $(C,B)$: $B \\rightarrow CB$ and $C \\rightarrow CB$ \u21d2 $\\{B,C\\}$  \n    \u21d2 $T[1,3] = \\{B, C\\}$"
+          },
+          {
+            "type": "text",
+            "content": "- **$T[2,4]$** ($bba$):  \n  - $k=2$: $T[2,2] = \\{B\\}$, $T[3,4] = \\{A,B\\}$  \n    Pairs: $(B,A)$, $(B,B)$  \n    Rules for $(B,A)$: $A \\rightarrow BA$ and $B \\rightarrow BA$ \u21d2 $\\{A,B\\}$  \n  - $k=3$: $T[2,3] = \\emptyset$, $T[4,4] = \\{A,C\\}$ \u21d2 no contributions.  \n  \u21d2 $T[2,4] = \\{A, B\\}$"
+          },
+          {
+            "type": "text",
+            "content": "- **$T[3,5]$** ($baa$):  \n  - $k=3$: $T[3,3] = \\{B\\}$, $T[4,5] = \\{A,C\\}$  \n    Pairs: $(B,A)$, $(B,C)$  \n    Rules for $(B,A)$: $A \\rightarrow BA$ and $B \\rightarrow BA$ \u21d2 $\\{A,B\\}$  \n  - $k=4$: $T[3,4] = \\{A,B\\}$, $T[5,5] = \\{A,C\\}$  \n    Pairs: $(A,A)$, $(A,C)$, $(B,A)$, $(B,C)$  \n    Rules:  \n      - $(A,C)$: $A \\rightarrow AC$ and $C \\rightarrow AC$ \u21d2 $\\{A,C\\}$  \n      - $(B,A)$: $A \\rightarrow BA$ and $B \\rightarrow BA$ \u21d2 $\\{A,B\\}$  \n    \u21d2 $\\{A, B, C\\}$  \n  \u21d2 Union: $\\{A,B\\} \\cup \\{A,B,C\\} = \\{A, B, C\\}$"
+          },
+          {
+            "type": "text",
+            "content": "### Step 4: Length-4 Substrings\nFor each $i$, $j = i+3$, consider splits $k = i, i+1, i+2$."
+          },
+          {
+            "type": "text",
+            "content": "- **$T[1,4]$** ($abba$):  \n  - $k=1$: $T[1,1] = \\{A,C\\}$, $T[2,4] = \\{A,B\\}$  \n    Pairs: $(A,A)$, $(A,B)$, $(C,A)$, $(C,B)$  \n    Rules for $(C,B)$: $B \\rightarrow CB$ and $C \\rightarrow CB$ \u21d2 $\\{B,C\\}$  \n  - $k=2$: $T[1,2] = \\{B,C\\}$, $T[3,4] = \\{A,B\\}$  \n    Pairs: $(B,A)$, $(B,B)$, $(C,A)$, $(C,B)$  \n    Rules:  \n      - $(B,A)$: $A \\rightarrow BA$ and $B \\rightarrow BA$ \u21d2 $\\{A,B\\}$  \n      - $(C,B)$: $B \\rightarrow CB$ and $C \\rightarrow CB$ \u21d2 $\\{B,C\\}$  \n    \u21d2 $\\{A, B, C\\}$  \n  - $k=3$: $T[1,3] = \\{B,C\\}$, $T[4,4] = \\{A,C\\}$  \n    Pairs: $(B,A)$, $(B,C)$, $(C,A)$, $(C,C)$  \n    Rules for $(B,A)$: $A \\rightarrow BA$ and $B \\rightarrow BA$ \u21d2 $\\{A,B\\}$  \n  \u21d2 Union: $\\{B,C\\} \\cup \\{A,B,C\\} \\cup \\{A,B\\} = \\{A, B, C\\}$"
+          },
+          {
+            "type": "text",
+            "content": "- **$T[2,5]$** ($bbaa$):  \n  - $k=2$: $T[2,2] = \\{B\\}$, $T[3,5] = \\{A,B,C\\}$  \n    Pairs: $(B,A)$, $(B,B)$, $(B,C)$  \n    Rules for $(B,A)$: $A \\rightarrow BA$ and $B \\rightarrow BA$ \u21d2 $\\{A,B\\}$  \n  - $k=3$: $T[2,3] = \\emptyset$, $T[4,5] = \\{A,C\\}$ \u21d2 no contributions.  \n  - $k=4$: $T[2,4] = \\{A,B\\}$, $T[5,5] = \\{A,C\\}$  \n    Pairs: $(A,A)$, $(A,C)$, $(B,A)$, $(B,C)$  \n    Rules:  \n      - $(A,C)$: $A \\rightarrow AC$ and $C \\rightarrow AC$ \u21d2 $\\{A,C\\}$  \n      - $(B,A)$: $A \\rightarrow BA$ and $B \\rightarrow BA$ \u21d2 $\\{A,B\\}$  \n    \u21d2 $\\{A, B, C\\}$  \n  \u21d2 Union: $\\{A,B\\} \\cup \\{A,B,C\\} = \\{A, B, C\\}$"
+          },
+          {
+            "type": "text",
+            "content": "### Step 5: Length-5 Substring\nFor $i=1$, $j=5$ ($abbaa$), consider splits $k = 1,2,3,4$."
+          },
+          {
+            "type": "text",
+            "content": "- **$T[1,5]$**:  \n  - $k=1$: $T[1,1] = \\{A,C\\}$, $T[2,5] = \\{A,B,C\\}$  \n    Pairs: $(A,A)$, $(A,B)$, $(A,C)$, $(C,A)$, $(C,B)$, $(C,C)$  \n    Rules:  \n      - $(A,C)$: $A \\rightarrow AC$ and $C \\rightarrow AC$ \u21d2 $\\{A,C\\}$  \n      - $(C,B)$: $B \\rightarrow CB$ and $C \\rightarrow CB$ \u21d2 $\\{B,C\\}$  \n    \u21d2 $\\{A, B, C\\}$  \n  - $k=2$: $T[1,2] = \\{B,C\\}$, $T[3,5] = \\{A,B,C\\}$  \n    Pairs: $(B,A)$, $(B,B)$, $(B,C)$, $(C,A)$, $(C,B)$, $(C,C)$  \n    Rules:  \n      - $(B,A)$: $A \\rightarrow BA$ and $B \\rightarrow BA$ \u21d2 $\\{A,B\\}$  \n      - $(C,B)$: $B \\rightarrow CB$ and $C \\rightarrow CB$ \u21d2 $\\{B,C\\}$  \n    \u21d2 $\\{A, B, C\\}$  \n  - $k=3$: $T[1,3] = \\{B,C\\}$, $T[4,5] = \\{A,C\\}$  \n    Pairs: $(B,A)$, $(B,C)$, $(C,A)$, $(C,C)$  \n    Rules for $(B,A)$: $A \\rightarrow BA$ and $B \\rightarrow BA$ \u21d2 $\\{A,B\\}$  \n    \u21d2 $\\{A, B\\}$  \n  - $k=4$: $T[1,4] = \\{A,B,C\\}$, $T[5,5] = \\{A,C\\}$  \n    Pairs: $(A,A)$, $(A,C)$, $(B,A)$, $(B,C)$, $(C,A)$, $(C,C)$  \n    Rules:  \n      - $(A,C)$: $A \\rightarrow AC$ and $C \\rightarrow AC$ \u21d2 $\\{A,C\\}$  \n      - $(B,A)$: $A \\rightarrow BA$ and $B \\rightarrow BA$ \u21d2 $\\{A,B\\}$  \n    \u21d2 $\\{A, B, C\\}$  \n  \u21d2 Union: $\\{A,B,C\\} \\cup \\{A,B,C\\} \\cup \\{A,B\\} \\cup \\{A,B,C\\} = \\{A, B, C\\}$"
+          },
+          {
+            "type": "text",
+            "content": "### CYK Table\nThe table $T[i,j]$ for $1 \\leq i \\leq j \\leq 5$ is:"
+          },
+          {
+            "type": "html",
+            "content": "<table class=\"academic-table\">\n  <thead>\n    <tr>\n      <th>$i$</th>\n      <th>$j=1$</th>\n      <th>$j=2$</th>\n      <th>$j=3$</th>\n      <th>$j=4$</th>\n      <th>$j=5$</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>1</td>\n      <td>$\\{A,C\\}$</td>\n      <td>$\\{B,C\\}$</td>\n      <td>$\\{B,C\\}$</td>\n      <td>$\\{A,B,C\\}$</td>\n      <td>$\\{A,B,C\\}$</td>\n    </tr>\n    <tr>\n      <td>2</td>\n      <td></td>\n      <td>$\\{B\\}$</td>\n      <td>$\\emptyset$</td>\n      <td>$\\{A,B\\}$</td>\n      <td>$\\{A,B,C\\}$</td>\n    </tr>\n    <tr>\n      <td>3</td>\n      <td></td>\n      <td></td>\n      <td>$\\{B\\}$</td>\n      <td>$\\{A,B\\}$</td>\n      <td>$\\{A,B,C\\}$</td>\n    </tr>\n    <tr>\n      <td>4</td>\n      <td></td>\n      <td></td>\n      <td></td>\n      <td>$\\{A,C\\}$</td>\n      <td>$\\{A,C\\}$</td>\n    </tr>\n    <tr>\n      <td>5</td>\n      <td></td>\n      <td></td>\n      <td></td>\n      <td></td>\n      <td>$\\{A,C\\}$</td>\n    </tr>\n  </tbody>\n</table>"
+          },
+          {
+            "type": "text",
+            "content": "*Note: Empty cells indicate $j < i$ (not computed).*"
+          },
+          {
+            "type": "text",
+            "content": "### Conclusion\nSince the start symbol $A \\in T[1,5] = \\{A, B, C\\}$, the string **\"abbaa\"** is generated by the grammar."
+          }
+        ],
+        "marks": 10,
+        "visual_description": "None",
+        "slug": "cyk_algorithm_parsing",
+        "review_notes": null
+      },
+      {
+        "id": "c4678995-de2a-4fad-96c6-6331a0d9be00",
+        "question": [
+          {
+            "type": "text",
+            "content": "a) Design a CFG for the language L = $\\{a^n b^m a^{2n} : n, m \\geq 0\\}$."
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### Context-Free Grammar for $ L = \\{ a^n b^m a^{2n} : n, m \\geq 0 \\} $\n\nThe language $ L $ consists of strings with three parts: a block of $ n $ `a` symbols, followed by a block of $ m $ `b` symbols, and finally a block of $ 2n $ `a` symbols, where $ n, m \\geq 0 $. To generate this language, we need a context-free grammar (CFG) that coordinates the count of the initial and final `a` blocks, while allowing any number of `b` symbols in between.\n\n**Approach**:  \nWe design a grammar where the start symbol $ S $ recursively generates one `a` at the beginning and two `a`s at the end, ensuring that for each `a` in the first block, two `a`s appear in the final block. A separate nonterminal handles the middle `b` block."
+          },
+          {
+            "type": "text",
+            "content": "**CFG Definition**:  \nLet $ G = (V, \\Sigma, R, S) $, where:\n- $ V = \\{ S, B \\} $ is the set of nonterminal symbols.\n- $ \\Sigma = \\{ a, b \\} $ is the set of terminal symbols.\n- $ R $ is the set of production rules:"
+          },
+          {
+            "type": "latex",
+            "content": "\\begin{aligned}\nS &\\to a S aa \\mid B \\\\\nB &\\to b B \\mid \\varepsilon\n\\end{aligned}"
+          },
+          {
+            "type": "text",
+            "content": "- $ S $ is the start symbol.\n\n**Explanation of Rules**:\n1. **Rule $ S \\to a S aa $**:  \n   This recursive rule generates one `a` at the start and two `a`s at the end. Each application increments $ n $ by 1 and ensures that the final `a` block will have $ 2n $ symbols. The recursion continues until the rule $ S \\to B $ is chosen.\n   \n2. **Rule $ S \\to B $**:  \n   This rule switches from generating the coordinated `a` blocks to generating the middle `b` block. It allows for the case where $ n = 0 $, i.e., no initial `a` block.\n\n3. **Rule $ B \\to b B $**:  \n   This recursive rule generates any number of `b` symbols, incrementing $ m $ by 1 each time.\n\n4. **Rule $ B \\to \\varepsilon $**:  \n   This terminates the generation of `b`s and the entire string, allowing $ m = 0 $."
+          },
+          {
+            "type": "text",
+            "content": "**Derivation Examples**:\n- **String $ bbb $ ($ n=0, m=3 $):**"
+          },
+          {
+            "type": "latex",
+            "content": "S \\Rightarrow B \\Rightarrow bB \\Rightarrow bbB \\Rightarrow bbbB \\Rightarrow bbb\\varepsilon = bbb."
+          },
+          {
+            "type": "text",
+            "content": "- **String $ aaa $ ($ n=1, m=0 $):**"
+          },
+          {
+            "type": "latex",
+            "content": "S \\Rightarrow aSaa \\Rightarrow aBaa \\Rightarrow a\\varepsilon aa = aaa."
+          },
+          {
+            "type": "text",
+            "content": "- **String $ aabbaaaa $ ($ n=2, m=2 $):**"
+          },
+          {
+            "type": "latex",
+            "content": "\\begin{aligned}\nS &\\Rightarrow aSaa \\Rightarrow a(aSaa)aa \\Rightarrow aaBaaaa \\\\\n  &\\Rightarrow aabBaaaa \\Rightarrow aabbBaaaa \\Rightarrow aabb\\varepsilon aaaa = aabbaaaa.\n\\end{aligned}"
+          },
+          {
+            "type": "text",
+            "content": "**Verification**:  \nThe grammar correctly generates all strings in $ L $ and no others. The recursion in $ S $ ensures $ 2n $ trailing `a`s for $ n $ leading `a`s, while $ B $ freely generates the `b` block. Cases with $ n=0 $ or $ m=0 $ are handled by the appropriate \u03b5-productions."
+          }
+        ],
+        "marks": 5,
+        "visual_description": "None",
+        "slug": "context_free_grammar_language_design",
+        "review_notes": null
+      },
+      {
+        "id": "7379c1e7-0a34-4d32-a457-33c594c1da20",
+        "question": [
+          {
+            "type": "text",
+            "content": "b) Consider the grammar $S \\rightarrow 0S1 \\mid 1S0 \\mid \\lambda$, where $S$ is the start symbol, and $\\{0,1\\}$ are terminals. Note that for every $0$ there is a $1$ and vice versa in the rules (other than $S \\rightarrow \\lambda$)."
+          },
+          {
+            "type": "text",
+            "content": "Does this grammar generate the language $L_2 = \\{w : |w|_0 = |w|_1\\}$, where $|w|_a$ refers to the number of occurrences of $a$ in $w$? If not, justify with a string in $L_2$ that cannot be produced by the grammar, and suggest changes to the grammar so that it generates $L_2$."
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### Analysis of the Given Grammar  \nThe grammar is"
+          },
+          {
+            "type": "latex",
+            "content": "S \\to 0S1 \\mid 1S0 \\mid \\lambda."
+          },
+          {
+            "type": "text",
+            "content": "Any derivation from $S$ builds strings by repeatedly wrapping a pair of differing symbols around a recursively generated inner string. Formally, every non\u2011empty string $w$ generated by this grammar has even length $2k$ and satisfies the property that for each $i = 1, \\dots, k$, the $i$\u2011th symbol from the left is the complement of the $i$\u2011th symbol from the right:"
+          },
+          {
+            "type": "latex",
+            "content": "w_i \\neq w_{2k+1-i}."
+          },
+          {
+            "type": "text",
+            "content": "Equivalently, $w = \\text{reverse}(c(w))$, where $c$ flips $0$ to $1$ and vice versa. Consequently, every generated string trivially has an equal number of $0$s and $1$s, because each derivation step adds one $0$ and one $1$ (or none for $\\lambda$). Hence,"
+          },
+          {
+            "type": "latex",
+            "content": "L(G) \\subseteq L_2 = \\{ w \\in \\{0,1\\}^* \\mid |w|_0 = |w|_1 \\}."
+          },
+          {
+            "type": "text",
+            "content": "### Is $L(G) = L_2$?  \nNo, $L(G)$ is a proper subset of $L_2$. Consider the string"
+          },
+          {
+            "type": "latex",
+            "content": "w = 0110."
+          },
+          {
+            "type": "text",
+            "content": "It belongs to $L_2$ because $|0110|_0 = 2$ and $|0110|_1 = 2$. However, $w$ cannot be generated by the grammar.  \n\n**Justification:** Any non\u2011empty string produced by the grammar must start and end with different symbols (since the first and last symbols are introduced by a single rule $0S1$ or $1S0$). The string $0110$ starts with $0$ and ends with $0$, violating this necessary condition. Therefore, $0110 \\notin L(G)$, proving $L(G) \\neq L_2$."
+          },
+          {
+            "type": "text",
+            "content": "### Suggested Modification to Generate $L_2$  \nTo obtain a grammar that generates all strings with equal numbers of $0$s and $1$s, we must allow concatenation of balanced substrings. The simplest extension is to add the rule $S \\to SS$. The modified grammar is"
+          },
+          {
+            "type": "latex",
+            "content": "S \\to 0S1 \\mid 1S0 \\mid SS \\mid \\lambda."
+          },
+          {
+            "type": "text",
+            "content": "**Why this works:**  \n- Every rule preserves the invariant that the number of $0$s equals the number of $1$s.  \n- The $SS$ rule enables the construction of strings that are concatenations of two balanced strings, which is essential for generating strings like $0110$. For example,"
+          },
+          {
+            "type": "latex",
+            "content": "S \\Rightarrow SS \\Rightarrow 0S1\\;1S0 \\Rightarrow 0\\lambda1\\;1\\lambda0 = 0110."
+          },
+          {
+            "type": "text",
+            "content": "- It is well\u2011known that this grammar generates exactly $L_2$. (One can prove by induction on the length of strings that every $w \\in L_2$ has a derivation, and conversely every derivation yields a string in $L_2$.)\n\nThus, with the addition of $S \\to SS$, the grammar produces the desired language $L_2$."
+          }
+        ],
+        "marks": 5,
+        "visual_description": "None",
+        "slug": "context_free_grammar_language_generation",
+        "review_notes": null
+      },
+      {
+        "id": "9300d91d-2556-43d7-923d-41bf060844e0",
+        "question": [
+          {
+            "type": "text",
+            "content": "a) Apply the CYK algorithm to the given Context-Free Grammar (CFG) to determine whether the string \"aabcb\" is derivable. The start symbol is $A$."
+          },
+          {
+            "type": "latex",
+            "content": "A \\rightarrow CB"
+          },
+          {
+            "type": "latex",
+            "content": "B \\rightarrow DC \\mid b"
+          },
+          {
+            "type": "latex",
+            "content": "C \\rightarrow BD \\mid a"
+          },
+          {
+            "type": "latex",
+            "content": "D \\rightarrow AD \\mid c"
+          },
+          {
+            "type": "text",
+            "content": "Marks: 10"
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### Step 1: Verify Chomsky Normal Form (CNF)\n\nThe given grammar is:"
+          },
+          {
+            "type": "latex",
+            "content": "\\begin{aligned}\nA &\\to CB \\\\\nB &\\to DC \\mid b \\\\\nC &\\to BD \\mid a \\\\\nD &\\to AD \\mid c\n\\end{aligned}"
+          },
+          {
+            "type": "text",
+            "content": "Every production is either of the form $X \\to YZ$ (two nonterminals) or $X \\to a$ (a terminal). Hence, the grammar is already in CNF, and the CYK algorithm can be applied directly.\n\n### Step 2: String and Indexing\n\nThe input string is $w = \\texttt{aabcb}$ with length $n = 5$. We index the characters as:"
+          },
+          {
+            "type": "html",
+            "content": "<table class=\"academic-table\">\n  <thead>\n    <tr>\n      <th>$i$</th>\n      <th>1</th>\n      <th>2</th>\n      <th>3</th>\n      <th>4</th>\n      <th>5</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>$w_i$</td>\n      <td>a</td>\n      <td>a</td>\n      <td>b</td>\n      <td>c</td>\n      <td>b</td>\n    </tr>\n  </tbody>\n</table>"
+          },
+          {
+            "type": "text",
+            "content": "### Step 3: CYK Algorithm\n\nWe construct a table $T[i,j]$ for $1 \\le i \\le j \\le n$, where $T[i,j]$ is the set of nonterminals that generate the substring $w_i \\dots w_j$.\n\n#### Initialization: Length $l = 1$\n\nFor each $i$, $T[i,i]$ contains nonterminals that directly produce $w_i$.\n\n- $w_1 = \\texttt{a}$: $C \\to a$, so $T[1,1] = \\{C\\}$\n- $w_2 = \\texttt{a}$: $C \\to a$, so $T[2,2] = \\{C\\}$\n- $w_3 = \\texttt{b}$: $B \\to b$, so $T[3,3] = \\{B\\}$\n- $w_4 = \\texttt{c}$: $D \\to c$, so $T[4,4] = \\{D\\}$\n- $w_5 = \\texttt{b}$: $B \\to b$, so $T[5,5] = \\{B\\}$\n\n#### Length $l = 2$\n\nFor each substring of length 2, we consider splits $k = i$.\n\n- **$T[1,2]$ (substring $\\texttt{aa}$):**\n  - $k=1$: $T[1,1] = \\{C\\}$, $T[2,2] = \\{C\\}$\n    - No production $X \\to YZ$ with $Y \\in T[1,1]$ and $Z \\in T[2,2]$.\n  - $T[1,2] = \\emptyset$\n\n- **$T[2,3]$ (substring $\\texttt{ab}$):**\n  - $k=2$: $T[2,2] = \\{C\\}$, $T[3,3] = \\{B\\}$\n    - $A \\to CB$: $C \\in T[2,2]$, $B \\in T[3,3]$ $\\Rightarrow$ add $A$.\n  - $T[2,3] = \\{A\\}$\n\n- **$T[3,4]$ (substring $\\texttt{bc}$):**\n  - $k=3$: $T[3,3] = \\{B\\}$, $T[4,4] = \\{D\\}$\n    - $C \\to BD$: $B \\in T[3,3]$, $D \\in T[4,4]$ $\\Rightarrow$ add $C$.\n  - $T[3,4] = \\{C\\}$\n\n- **$T[4,5]$ (substring $\\texttt{cb}$):**\n  - $k=4$: $T[4,4] = \\{D\\}$, $T[5,5] = \\{B\\}$\n    - No production matches.\n  - $T[4,5] = \\emptyset$\n\n#### Length $l = 3$\n\nFor each substring of length 3, we consider splits $k = i, i+1$.\n\n- **$T[1,3]$ (substring $\\texttt{aab}$):**\n  - $k=1$: $T[1,1] = \\{C\\}$, $T[2,3] = \\{A\\}$ \u2192 no production matches.\n  - $k=2$: $T[1,2] = \\emptyset$, $T[3,3] = \\{B\\}$ \u2192 nothing.\n  - $T[1,3] = \\emptyset$\n\n- **$T[2,4]$ (substring $\\texttt{abc}$):**\n  - $k=2$: $T[2,2] = \\{C\\}$, $T[3,4] = \\{C\\}$ \u2192 no production matches.\n  - $k=3$: $T[2,3] = \\{A\\}$, $T[4,4] = \\{D\\}$\n    - $D \\to AD$: $A \\in T[2,3]$, $D \\in T[4,4]$ $\\Rightarrow$ add $D$.\n  - $T[2,4] = \\{D\\}$\n\n- **$T[3,5]$ (substring $\\texttt{bcb}$):**\n  - $k=3$: $T[3,3] = \\{B\\}$, $T[4,5] = \\emptyset$ \u2192 nothing.\n  - $k=4$: $T[3,4] = \\{C\\}$, $T[5,5] = \\{B\\}$\n    - $A \\to CB$: $C \\in T[3,4]$, $B \\in T[5,5]$ $\\Rightarrow$ add $A$.\n  - $T[3,5] = \\{A\\}$\n\n#### Length $l = 4$\n\nFor each substring of length 4, we consider splits $k = i, i+1, i+2$.\n\n- **$T[1,4]$ (substring $\\texttt{aabc}$):**\n  - $k=1$: $T[1,1] = \\{C\\}$, $T[2,4] = \\{D\\}$ \u2192 no matches.\n  - $k=2$: $T[1,2] = \\emptyset$, $T[3,4] = \\{C\\}$ \u2192 nothing.\n  - $k=3$: $T[1,3] = \\emptyset$, $T[4,4] = \\{D\\}$ \u2192 nothing.\n  - $T[1,4] = \\emptyset$\n\n- **$T[2,5]$ (substring $\\texttt{abcb}$):**\n  - $k=2$: $T[2,2] = \\{C\\}$, $T[3,5] = \\{A\\}$ \u2192 no matches.\n  - $k=3$: $T[2,3] = \\{A\\}$, $T[4,5] = \\emptyset$ \u2192 nothing.\n  - $k=4$: $T[2,4] = \\{D\\}$, $T[5,5] = \\{B\\}$ \u2192 no matches.\n  - $T[2,5] = \\emptyset$\n\n#### Length $l = 5$ (entire string $\\texttt{aabcb}$)\n\n- **$T[1,5]$:**\n  - $k=1$: $T[1,1] = \\{C\\}$, $T[2,5] = \\emptyset$ \u2192 nothing.\n  - $k=2$: $T[1,2] = \\emptyset$, $T[3,5] = \\{A\\}$ \u2192 nothing.\n  - $k=3$: $T[1,3] = \\emptyset$, $T[4,5] = \\emptyset$ \u2192 nothing.\n  - $k=4$: $T[1,4] = \\emptyset$, $T[5,5] = \\{B\\}$ \u2192 nothing.\n  - $T[1,5] = \\emptyset$\n\n### Step 4: Final Check\n\nThe start symbol $A$ is not in $T[1,5]$. Therefore, the string $\\texttt{aabcb}$ is **not derivable** from the given CFG.\n\n### Summary Table of $T[i,j]$\n\nThe CYK table can be visualized as follows (rows: $i$, columns: $j$):"
+          },
+          {
+            "type": "html",
+            "content": "<table class=\"academic-table\">\n  <thead>\n    <tr>\n      <th>$i \\setminus j$</th>\n      <th>1</th>\n      <th>2</th>\n      <th>3</th>\n      <th>4</th>\n      <th>5</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>1</td>\n      <td>$\\{C\\}$</td>\n      <td>$\\emptyset$</td>\n      <td>$\\emptyset$</td>\n      <td>$\\emptyset$</td>\n      <td>$\\emptyset$</td>\n    </tr>\n    <tr>\n      <td>2</td>\n      <td></td>\n      <td>$\\{C\\}$</td>\n      <td>$\\{A\\}$</td>\n      <td>$\\{D\\}$</td>\n      <td>$\\emptyset$</td>\n    </tr>\n    <tr>\n      <td>3</td>\n      <td></td>\n      <td></td>\n      <td>$\\{B\\}$</td>\n      <td>$\\{C\\}$</td>\n      <td>$\\{A\\}$</td>\n    </tr>\n    <tr>\n      <td>4</td>\n      <td></td>\n      <td></td>\n      <td></td>\n      <td>$\\{D\\}$</td>\n      <td>$\\emptyset$</td>\n    </tr>\n    <tr>\n      <td>5</td>\n      <td></td>\n      <td></td>\n      <td></td>\n      <td></td>\n      <td>$\\{B\\}$</td>\n    </tr>\n  </tbody>\n</table>"
+          },
+          {
+            "type": "text",
+            "content": "**Conclusion:** The CYK algorithm determines that $\\texttt{aabcb}$ is not in the language generated by the grammar."
+          }
+        ],
+        "marks": 10,
+        "visual_description": "None",
+        "slug": "cyk_algorithm_cfg_parsing",
+        "review_notes": null
+      },
+      {
+        "id": "f68950b3-9cf7-464b-9eba-fe0e02f6383c",
+        "question": [
+          {
+            "type": "text",
+            "content": "a) Construct the following Context-Free Grammar into Chomsky Normal Form. The grammar $G$ is defined with variables $V = \\{P, Q, R, T\\}$, terminals $\\Sigma = \\{a, b\\}$, start symbol $S = P$, and productions:"
+          },
+          {
+            "type": "latex",
+            "content": "P \\rightarrow R P T"
+          },
+          {
+            "type": "latex",
+            "content": "Q \\rightarrow R P \\mid R a"
+          },
+          {
+            "type": "latex",
+            "content": "R \\rightarrow b R P R \\mid b \\mid \\epsilon"
+          },
+          {
+            "type": "latex",
+            "content": "T \\rightarrow P a P \\mid R \\mid a a"
+          },
+          {
+            "type": "text",
+            "content": "Marks: 5"
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### Solution\n\nWe convert the given context-free grammar into Chomsky Normal Form (CNF) by applying the standard algorithm: introducing a new start symbol, eliminating \u03b5-productions, eliminating unit productions, and finally breaking productions into the required binary or terminal forms."
+          },
+          {
+            "type": "text",
+            "content": "#### Step 1: Introduce a new start symbol  \nThe original start symbol is $P$, but it appears on the right-hand side (RHS) of productions. We introduce a new start symbol $S_0$ with the production $S_0 \\to P$."
+          },
+          {
+            "type": "text",
+            "content": "#### Step 2: Eliminate \u03b5-productions  \nIdentify nullable nonterminals: $R$ (from $R \\to \\varepsilon$) and $T$ (since $T \\to R$ and $R$ is nullable). For each production containing nullable symbols, add new productions with those symbols omitted in all possible combinations (except omitting all symbols). Remove $R \\to \\varepsilon$."
+          },
+          {
+            "type": "text",
+            "content": "#### Step 3: Eliminate unit productions  \nUnit productions are of the form $A \\to B$. We compute closures and replace each unit production $A \\to B$ with all non-unit productions of $B$. Remove the unit productions themselves."
+          },
+          {
+            "type": "text",
+            "content": "#### Step 4: Convert to CNF  \nIntroduce new nonterminals for terminals that appear alongside other symbols: $A \\to a$, $B \\to b$. Replace terminals in longer productions accordingly. Then break productions with more than two nonterminals on the RHS into sequences of binary productions by introducing additional nonterminals."
+          },
+          {
+            "type": "text",
+            "content": "The resulting CNF grammar is:"
+          },
+          {
+            "type": "text",
+            "content": "- **Variables:**  \n  $V' = \\{ S_0, P, Q, R, T, A, B, U_1, U_3, U_4, U_5, U_6 \\}$"
+          },
+          {
+            "type": "text",
+            "content": "- **Terminals:**  \n  $\\Sigma = \\{ a, b \\}$"
+          },
+          {
+            "type": "text",
+            "content": "- **Start symbol:**  \n  $S_0$"
+          },
+          {
+            "type": "text",
+            "content": "- **Productions:**"
+          },
+          {
+            "type": "latex",
+            "content": "\\begin{aligned}\n&S_0 \\to P T \\mid R P \\mid R U_1 \\\\\n&P \\to P T \\mid R P \\mid R U_1 \\\\\n&Q \\to P T \\mid R P \\mid R A \\mid a \\mid R U_1 \\\\\n&R \\to B P \\mid b \\mid B U_3 \\mid B U_5 \\mid U_4 U_3 \\\\\n&T \\to A A \\mid B P \\mid b \\mid P U_6 \\mid B U_3 \\mid B U_5 \\mid U_4 U_3 \\\\\n&A \\to a \\\\\n&B \\to b \\\\\n&U_1 \\to P T \\\\\n&U_3 \\to P R \\\\\n&U_4 \\to B R \\\\\n&U_5 \\to R P \\\\\n&U_6 \\to A P\n\\end{aligned}"
+          },
+          {
+            "type": "text",
+            "content": "All productions are now in CNF: each is either of the form $X \\to Y Z$ (two nonterminals) or $X \\to x$ (a single terminal). The original start symbol $P$ is preserved as a variable, but the new start symbol $S_0$ ensures CNF compliance."
+          }
+        ],
+        "marks": 5,
+        "visual_description": "None",
+        "slug": "chomsky_normal_form_conversion",
+        "review_notes": null
+      },
+      {
+        "id": "4625677f-12d6-4406-84d4-f0948c51070d",
+        "question": [
+          {
+            "type": "text",
+            "content": "b) Derive a Context-Free Grammar (CFG) for the language $L = \\{v^r i^{r+s} t^s \\mid r,s \\geq 0\\}$ and determine whether the derived CFG is ambiguous."
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### Derivation of the CFG\n\nThe language is given by  \n$L = \\{ v^r i^{\\,r+s} t^s \\mid r,s \\ge 0 \\}$.\nWe construct a context\u2011free grammar $G = (V, \\Sigma, P, S)$ with  \n\n- $V = \\{ S, A, B \\}$ (non\u2011terminals),  \n- $\\Sigma = \\{ v, i, t \\}$ (terminals),  \n- $S$ as the start symbol,  \n- and productions $P$ as follows:"
+          },
+          {
+            "type": "latex",
+            "content": "\\begin{aligned}\nS &\\to A B, \\\\\nA &\\to v A i \\mid \\varepsilon, \\\\\nB &\\to i B t \\mid \\varepsilon.\n\\end{aligned}"
+          },
+          {
+            "type": "text",
+            "content": "**Explanation:**  \n- The non\u2011terminal $A$ generates strings of the form $v^r i^r$ (including the empty string when $r = 0$).  \n- The non\u2011terminal $B$ generates strings of the form $i^s t^s$ (including the empty string when $s = 0$).  \n- Concatenating $A$ and $B$ via $S \\to A B$ yields $v^r i^r \\cdot i^s t^s = v^r i^{\\,r+s} t^s$, exactly the strings of $L$.  \n- Conversely, any string $v^r i^{\\,r+s} t^s$ can be obtained by choosing $A$ to produce $v^r i^r$ and $B$ to produce $i^s t^s$.\n\nHence, $L(G) = L$."
+          },
+          {
+            "type": "text",
+            "content": "### Ambiguity Analysis\n\nThe grammar $G$ is **unambiguous**.\n\n**Reasoning:**  \nLet $w \\in L(G)$ be arbitrary, so $w = v^r i^{\\,r+s} t^s$ for unique non\u2011negative integers $r$ and $s$. In any parse tree for $w$:\n\n1. The root must be $S$, and the only production for $S$ is $S \\to A B$. Thus the parse tree splits $w$ into a prefix generated by $A$ and a suffix generated by $B$.\n2. The non\u2011terminal $A$ only produces strings with equal numbers of $v$\u2019s and $i$\u2019s. Since the prefix contains exactly $r$ $v$\u2019s (all $v$\u2019s of $w$), $A$ must generate exactly $r$ $i$\u2019s as well. Therefore the yield of $A$ is forced to be $v^r i^r$.\n3. The remaining suffix is then $i^s t^s$, which must be generated by $B$. The grammar for $B$ (which is essentially a balanced parentheses grammar) is itself unambiguous.\n4. Within $A$ and $B$, the derivations are also unique because each of $A \\to v A i \\mid \\varepsilon$ and $B \\to i B t \\mid \\varepsilon$ is an unambiguous grammar for a Dyck\u2011like language (the standard grammar for matching pairs is unambiguous).\n\nConsequently, for every string $w \\in L(G)$ there is exactly one parse tree. Equivalently, there is exactly one leftmost (or rightmost) derivation. Hence, $G$ is unambiguous."
+          }
+        ],
+        "marks": 5,
+        "visual_description": "None",
+        "slug": "context_free_grammar_ambiguity",
+        "review_notes": null
+      },
+      {
+        "id": "3c54e1cc-39ab-4947-99a5-ccbcf3869b1e",
+        "question": [
+          {
+            "type": "text",
+            "content": "a) Consider the grammar $X \\rightarrow aXb \\mid XX \\mid \\epsilon$. Determine whether the grammar is ambiguous. If it is, prove the ambiguity by deriving two distinct parse trees for the same string."
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "The grammar $X \\to aXb \\mid XX \\mid \\epsilon$ is **ambiguous**. A grammar is ambiguous if there exists at least one string in its language that has two or more distinct parse trees (or leftmost derivations). Consider the string $w = \\texttt{aabb}$. Below are two distinct leftmost derivations for $w$, followed by textual representations of the corresponding parse trees."
+          },
+          {
+            "type": "text",
+            "content": "### Derivations\n**Derivation 1** (using $X \\to aXb$ recursively):\n1. $X \\Rightarrow aXb$\n2. $\\Rightarrow a(aXb)b$\n3. $\\Rightarrow a(a\\epsilon b)b$\n4. $\\Rightarrow \\texttt{aabb}$"
+          },
+          {
+            "type": "text",
+            "content": "**Derivation 2** (using $X \\to XX$ first):\n1. $X \\Rightarrow XX$\n2. $\\Rightarrow aXb\\; X$\n3. $\\Rightarrow a(aXb)b\\; X$\n4. $\\Rightarrow a(a\\epsilon b)b\\; X$\n5. $\\Rightarrow \\texttt{aabb}\\; X$\n6. $\\Rightarrow \\texttt{aabb}\\; \\epsilon$\n7. $\\Rightarrow \\texttt{aabb}$"
+          },
+          {
+            "type": "text",
+            "content": "### Parse Trees\n**Parse Tree 1** (root production $X \\to aXb$):"
+          },
+          {
+            "type": "text",
+            "content": "\n        X\n       /|\\\n      a X b\n       /|\\\n      a X b\n         |\n         \u03b5\n"
+          },
+          {
+            "type": "text",
+            "content": "**Parse Tree 2** (root production $X \\to XX$):"
+          },
+          {
+            "type": "text",
+            "content": "\n          X\n         / \\\n        X   X\n       /|\\   \\\n      a X b   \u03b5\n       /|\\\n      a X b\n         |\n         \u03b5\n"
+          },
+          {
+            "type": "text",
+            "content": "These trees are structurally different: in the first, the root expands directly via $aXb$, while in the second, the root expands via $XX$ with the right child deriving $\\epsilon$. Since the same string $\\texttt{aabb}$ admits two distinct parse trees, the grammar is ambiguous."
+          },
+          {
+            "type": "text",
+            "content": "> **Note**: Other strings like $\\texttt{abab}$ also demonstrate ambiguity, but $\\texttt{aabb}$ suffices as a proof."
+          }
+        ],
+        "marks": 5,
+        "visual_description": "None",
+        "slug": "context_free_grammar_ambiguity",
+        "review_notes": null
+      },
+      {
+        "id": "ee7c216c-836a-4f10-8c4f-76f9063c2080",
+        "question": [
+          {
+            "type": "text",
+            "content": "b) Design a context-free grammar for the language $L = \\{a^n b^m \\mid n \\neq m\\}$."
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### Solution\n\nThe language $L = \\{ a^n b^m \\mid n \\neq m \\}$ consists of all strings of the form $a$'s followed by $b$'s, where the number of $a$'s is not equal to the number of $b$'s. A context-free grammar (CFG) for $L$ can be constructed by considering two disjoint subsets:  \n- $L_1 = \\{ a^n b^m \\mid n > m \\}$ (more $a$'s than $b$'s),  \n- $L_2 = \\{ a^n b^m \\mid n < m \\}$ (more $b$'s than $a$\u2019s).  \n\nWe design a CFG for each subset and combine them with a start symbol that chooses between them."
+          },
+          {
+            "type": "text",
+            "content": "#### Grammar Construction\n\nLet $G = (V, \\Sigma, P, S)$ with:\n- $V = \\{S, S_{gt}, S_{lt}, X, Y\\}$ (non-terminals),\n- $\\Sigma = \\{a, b\\}$ (terminals),\n- $S$ as the start symbol,\n- Productions $P$ as follows:"
+          },
+          {
+            "type": "latex",
+            "content": "\\begin{aligned}\nS &\\to S_{gt} \\mid S_{lt} \\\\\nS_{gt} &\\to a S_{gt} b \\mid a X \\\\\nX &\\to a X \\mid \\varepsilon \\\\\nS_{lt} &\\to a S_{lt} b \\mid Y b \\\\\nY &\\to b Y \\mid \\varepsilon\n\\end{aligned}"
+          },
+          {
+            "type": "text",
+            "content": "#### Explanation\n\n- **For $L_1$ (more $a$\u2019s)**:  \n  The non-terminal $S_{gt}$ generates strings with $n > m$. The production $S_{gt} \\to a S_{gt} b$ generates matched pairs of $a$ and $b$. Eventually, $S_{gt} \\to a X$ is used to introduce at least one extra $a$. The non-terminal $X$ then generates zero or more additional $a$\u2019s via $X \\to a X \\mid \\varepsilon$.  \n  In any derivation, if $S_{gt} \\to a S_{gt} b$ is used $k$ times and then $S_{gt} \\to a X$ is applied, we have:\n  $S_{gt} \\Rightarrow a^k S_{gt} b^k \\Rightarrow a^k (a X) b^k = a^{k+1} X b^k.$\n  If $X$ generates $l \\geq 0$ additional $a$\u2019s, the final string is $a^{k+1+l} b^k$, where $n = k+1+l > k = m$."
+          },
+          {
+            "type": "text",
+            "content": "- **For $L_2$ (more $b$\u2019s)**:  \n  Symmetrically, $S_{lt}$ generates strings with $n < m$. The rule $S_{lt} \\to a S_{lt} b$ again produces matched pairs. The alternative $S_{lt} \\to Y b$ introduces at least one extra $b$, and $Y$ generates zero or more additional $b$\u2019s.  \n  After $k$ uses of $S_{lt} \\to a S_{lt} b$ and then $S_{lt} \\to Y b$, we obtain:\n  $S_{lt} \\Rightarrow a^k S_{lt} b^k \\Rightarrow a^k (Y b) b^k = a^k Y b^{k+1}.$\n  If $Y$ generates $l \\geq 0$ extra $b$\u2019s, the string is $a^k b^{l+k+1}$, where $n = k < l+k+1 = m$."
+          },
+          {
+            "type": "text",
+            "content": "- **Combination**:  \n  The start symbol $S$ selects either $S_{gt}$ or $S_{lt}$, ensuring all strings with $n \\neq m$ are generated, and no string with $n = m$ can be derived (since both sub-grammars enforce inequality)."
+          },
+          {
+            "type": "text",
+            "content": "#### Example Derivations\n\n- String $a^3 b^1$ (here $n=3 > m=1$):  \n  $S \\Rightarrow S_{gt} \\Rightarrow a S_{gt} b \\Rightarrow a (a X) b = aa X b \\Rightarrow aa (a X) b \\Rightarrow aaa \\varepsilon b = aaab.$\n  (Here, $X \\to a X$ once then $X \\to \\varepsilon$.)"
+          },
+          {
+            "type": "text",
+            "content": "- String $a^2 b^5$ (here $n=2 < m=5$):  \n  $S \\Rightarrow S_{lt} \\Rightarrow a S_{lt} b \\Rightarrow a (a S_{lt} b) b = aa S_{lt} bb \\Rightarrow aa (Y b) bb = aa Y bbb \\Rightarrow aa (b Y) bbb \\Rightarrow aa (b b Y) bbb \\Rightarrow aa bb \\varepsilon bbb = aabbbbb.$\n  (Here, $Y \\to b Y$ twice then $Y \\to \\varepsilon$.)"
+          },
+          {
+            "type": "text",
+            "content": "This grammar correctly generates all strings in $L$ and only those strings."
+          }
+        ],
+        "marks": 5,
+        "visual_description": "None",
+        "slug": "context_free_grammar",
+        "review_notes": null
+      },
+      {
+        "id": "d94a740d-a0ef-4da3-aba1-2aa179518c4e",
+        "question": [
+          {
+            "type": "text",
+            "content": "c) Consider the grammar $G$ with productions $E \\rightarrow 0E1 \\mid 1E0 \\mid x$. Let $L$ be the language over the alphabet $\\{0,1\\}$ defined as $L = \\{ w \\in \\{0,1\\}^* \\mid \\text{the number of 0s in } w \\text{ equals the number of 1s in } w \\}$. Does grammar $G$ generate $L$? Justify your answer. If not, what modifications are required in the grammar to generate $L$?"
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### Solution\n\nWe are given the grammar $G$ with productions:\n"
+          },
+          {
+            "type": "latex",
+            "content": "E \\to 0E1 \\mid 1E0 \\mid x"
+          },
+          {
+            "type": "text",
+            "content": "and the language $L$ over $\\{0,1\\}$ defined as:\n"
+          },
+          {
+            "type": "latex",
+            "content": "L = \\{ w \\in \\{0,1\\}^* \\mid \\text{the number of 0s in } w \\text{ equals the number of 1s in } w \\}."
+          },
+          {
+            "type": "text",
+            "content": "\n\nWe must determine whether $G$ generates $L$, justify the answer, and if not, propose modifications.\n\n---\n\n#### 1. Interpretation of the Terminal $x$\n\nThe grammar includes the terminal $x$. Since $L$ is defined over the alphabet $\\{0,1\\}$, any string containing $x$ is not in $L$. Therefore, if $x$ is a literal terminal symbol, $L(G)$ contains strings with $x$, so $L(G) \\nsubseteq L$. Consequently, $G$ does not generate $L$.\n\nHowever, in many academic contexts, $x$ is used as a placeholder for the empty string $\\varepsilon$. We will consider both interpretations, but even with $\\varepsilon$, the grammar fails to generate $L$, as shown below.\n\n---\n\n#### 2. Analysis with $x = \\varepsilon$\n\nAssume $x$ represents $\\varepsilon$. Then the grammar becomes:\n"
+          },
+          {
+            "type": "latex",
+            "content": "E \\to 0E1 \\mid 1E0 \\mid \\varepsilon."
+          },
+          {
+            "type": "text",
+            "content": "\n\nWe analyze the language generated by this grammar.\n\n**Observation:** Every derivation in $G$ begins with either $E \\Rightarrow 0E1$ or $E \\Rightarrow 1E0$ (or $E \\Rightarrow \\varepsilon$ for the empty string). Thus, any non-empty derived string has the property:\n- If the first production is $0E1$, the string starts with $0$ and ends with $1$.\n- If the first production is $1E0$, the string starts with $1$ and ends with $0$.\n\nTherefore, every non-empty string in $L(G)$ has **different first and last symbols** (or is empty).\n\n**Counterexample in $L$:** Consider the string $w = 0110$. \n- $w$ has two 0s and two 1s, so $w \\in L$.\n- However, $w$ starts with $0$ and ends with $0$, violating the above property. Hence, $w$ cannot be generated by $G$.\n\nAttempting a derivation confirms this:\n- Starting with $E \\Rightarrow 0E1$ forces the last symbol to be $1$, but $w$ ends with $0$.\n- Starting with $E \\Rightarrow 1E0$ forces the first symbol to be $1$, but $w$ starts with $0$.\n- No sequence of productions yields $0110$.\n\nThus, even with $x = \\varepsilon$, $L(G)$ is a proper subset of $L$:\n"
+          },
+          {
+            "type": "latex",
+            "content": "L(G) = \\{ w \\in \\{0,1\\}^* \\mid \\text{the number of 0s in } w \\text{ equals the number of 1s, and either } w = \\varepsilon \\text{ or the first and last symbols differ} \\}."
+          },
+          {
+            "type": "text",
+            "content": "\n\n---\n\n#### 3. Formal Justification\n\nTo formally justify that $G$ does not generate $L$, we can prove by induction on the length of derivation that every string generated by $G$ (with $x=\\varepsilon$) has the property that its first and last symbols are different if non-empty.\n\n**Induction Basis:** For the empty string, the property holds vacuously.\n\n**Inductive Step:** Assume every string derived in $k$ steps satisfies the property. Consider a derivation of length $k+1$. The first step is either $E \\Rightarrow 0E1$ or $E \\Rightarrow 1E0$. Suppose it is $E \\Rightarrow 0E1$. Then the final string is of the form $0u1$, where $u$ is derived from $E$ in $k$ steps. By the inductive hypothesis, if $u$ is non-empty, its first and last symbols differ. However, even if $u$ is empty, the overall string $01$ has first symbol $0$ and last symbol $1$, which are different. The case for $E \\Rightarrow 1E0$ is symmetric. Therefore, the property holds for all derived strings.\n\nSince $L$ contains strings like $0110$ that start and end with the same symbol, $L \\nsubseteq L(G)$. Hence, $L(G) \\neq L$.\n\n---\n\n#### 4. Required Modifications\n\nTo generate all strings with equal numbers of 0s and 1s, we need a grammar that allows arbitrary interleaving and does not force the first and last symbols to differ. Two common correct grammars for $L$ are:\n\n- **Option 1:** Allow concatenation of balanced strings.\n  "
+          },
+          {
+            "type": "latex",
+            "content": "E \\to 0E1 \\mid 1E0 \\mid EE \\mid \\varepsilon"
+          },
+          {
+            "type": "text",
+            "content": "\n  This grammar generates any balanced string by combining smaller balanced strings via concatenation or wrapping with a pair of differing symbols.\n\n- **Option 2:** Use a more flexible insertion rule.\n  "
+          },
+          {
+            "type": "latex",
+            "content": "E \\to 0E1E \\mid 1E0E \\mid \\varepsilon"
+          },
+          {
+            "type": "text",
+            "content": "\n  This grammar ensures that every 0 is matched with a 1 somewhere to the right, and every 1 is matched with a 0 somewhere to the right, allowing all balanced strings.\n\nBoth grammars generate $L$ and can produce strings like $0110$. For example, using the first grammar:\n"
+          },
+          {
+            "type": "latex",
+            "content": "E \\Rightarrow EE \\Rightarrow 0E1E \\Rightarrow 01E \\Rightarrow 01(1E0) \\Rightarrow 011E0 \\Rightarrow 0110,"
+          },
+          {
+            "type": "text",
+            "content": "\nwhere we used $E \\Rightarrow \\varepsilon$ at the last step.\n\nThus, modifying $G$ by replacing $x$ with $\\varepsilon$ and adding a rule like $E \\to EE$ (or using the second form) yields a grammar for $L$.\n\n---\n\n#### 5. Conclusion\n\n- If $x$ is a terminal symbol, $G$ generates strings containing $x$, so $L(G) \\neq L$.\n- Even if $x = \\varepsilon$, $G$ fails to generate all of $L$ because it forces non-empty strings to start and end with different symbols.\n- To generate $L$, modify $G$ to allow concatenation or more flexible matching, e.g., $E \\to 0E1 \\mid 1E0 \\mid EE \\mid \\varepsilon$.\n\nTherefore, grammar $G$ does not generate $L$."
+          }
+        ],
+        "marks": 5,
+        "visual_description": "None",
+        "slug": "context_free_grammar_language_generation",
+        "review_notes": null
+      },
+      {
+        "id": "db999c8a-c530-462e-abae-92626689d3e5",
+        "question": [
+          {
+            "type": "text",
+            "content": "a) Consider the grammar $S \\rightarrow ASA \\mid aB$, $A \\rightarrow B \\mid S$, $B \\rightarrow b \\mid \\epsilon$. Convert into Chomsky Normal Form."
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "To convert the given grammar $G$ with productions  \n\ninto Chomsky Normal Form (CNF), we perform the following steps: elimination of $\\varepsilon$-productions, elimination of unit productions, and conversion to CNF by breaking down productions with more than two symbols or mixed terminals/non-terminals."
+          },
+          {
+            "type": "latex",
+            "content": "S \\rightarrow ASA \\mid aB, \\quad A \\rightarrow B \\mid S, \\quad B \\rightarrow b \\mid \\varepsilon"
+          },
+          {
+            "type": "text",
+            "content": "### Step 1: Eliminate $\\varepsilon$-productions\nThe nullable non-terminals are $B$ and $A$. Remove $B \\rightarrow \\varepsilon$ and add new productions by omitting nullable symbols in all possible ways (excluding empty strings unless from the start symbol). The resulting grammar is:"
+          },
+          {
+            "type": "latex",
+            "content": "\\begin{aligned}\nS &\\rightarrow ASA \\mid SA \\mid AS \\mid S \\mid aB \\mid a \\\\\nA &\\rightarrow B \\mid S \\\\\nB &\\rightarrow b\n\\end{aligned}"
+          },
+          {
+            "type": "text",
+            "content": "### Step 2: Eliminate unit productions\nCompute unit closures and replace unit productions with their non-unit expansions. Remove all unit productions. The resulting grammar is:"
+          },
+          {
+            "type": "latex",
+            "content": "\\begin{aligned}\nS &\\rightarrow ASA \\mid SA \\mid AS \\mid aB \\mid a \\\\\nA &\\rightarrow b \\mid ASA \\mid SA \\mid AS \\mid aB \\mid a \\\\\nB &\\rightarrow b\n\\end{aligned}"
+          },
+          {
+            "type": "text",
+            "content": "### Step 3: Convert to CNF\nIntroduce new non-terminals to break productions with more than two symbols or with terminals mixed with non-terminals.  \n- Introduce $X \\rightarrow a$ for terminal $a$.  \n- Introduce $Y \\rightarrow SA$ for the pair $SA$.  \nReplace productions accordingly. The final CNF grammar is:\n\n**Non-terminals:** $\\{ S, A, B, X, Y \\}$  \n**Terminals:** $\\{ a, b \\}$  \n**Start symbol:** $S$  \n**Productions:**"
+          },
+          {
+            "type": "latex",
+            "content": "\\boxed{\n\\begin{aligned}\n&S \\rightarrow A Y \\mid S A \\mid A S \\mid X B \\mid a \\\\\n&A \\rightarrow A Y \\mid S A \\mid A S \\mid X B \\mid a \\mid b \\\\\n&B \\rightarrow b \\\\\n&Y \\rightarrow S A \\\\\n&X \\rightarrow a\n\\end{aligned}}"
+          }
+        ],
+        "marks": 6,
+        "visual_description": "None",
+        "slug": "chomsky_normal_form",
+        "review_notes": null
+      },
+      {
+        "id": "3c1dbeb1-84d1-4c90-883a-3e16ff74167e",
+        "question": [
+          {
+            "type": "text",
+            "content": "b) Consider the context-free grammar whose rules are $S \\rightarrow SS \\mid Sa \\mid a$. Convert it into an equivalent grammar in GNF."
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "The given context-free grammar is $S \\to SS \\mid Sa \\mid a$. To convert it into Greibach Normal Form (GNF), where every production is of the form $A \\to a\\alpha$ with $a$ a terminal and $\\alpha$ a string of non-terminals, we eliminate left recursion and ensure all productions start with a terminal."
+          },
+          {
+            "type": "text",
+            "content": "The grammar is left-recursive because $S \\to SS$ and $S \\to Sa$ begin with $S$. Using the standard left recursion elimination algorithm:"
+          },
+          {
+            "type": "text",
+            "content": "Let the productions be $S \\to S\\alpha_1 \\mid S\\alpha_2 \\mid \\beta$, with $\\alpha_1 = S$, $\\alpha_2 = a$, and $\\beta = a$. Introduce a new non-terminal $A$ and rewrite:\n- $S \\to \\beta \\mid \\beta A$ \u2192 $S \\to a \\mid aA$\n- $A \\to \\alpha_1 \\mid \\alpha_2 \\mid \\alpha_1 A \\mid \\alpha_2 A$ \u2192 $A \\to S \\mid a \\mid SA \\mid aA$"
+          },
+          {
+            "type": "latex",
+            "content": "\\begin{aligned}\nS &\\to a \\mid aA \\\\\nA &\\to S \\mid a \\mid SA \\mid aA\n\\end{aligned}"
+          },
+          {
+            "type": "text",
+            "content": "Now, substitute $S$ in the productions for $A$ using $S \\to a$ and $S \\to aA$:\n- $A \\to S$ gives $A \\to a$ and $A \\to aA$\n- $A \\to SA$ gives $A \\to aA$ and $A \\to aAA$"
+          },
+          {
+            "type": "text",
+            "content": "Removing duplicates, we obtain:"
+          },
+          {
+            "type": "latex",
+            "content": "\\begin{aligned}\nS &\\to a \\mid aA \\\\\nA &\\to a \\mid aA \\mid aAA\n\\end{aligned}"
+          },
+          {
+            "type": "text",
+            "content": "All productions start with the terminal $a$, followed by zero or more non-terminals, satisfying GNF. This grammar generates the same language as the original (all non-empty strings of $a$'s)."
+          },
+          {
+            "type": "text",
+            "content": "**Equivalent Grammar in GNF:**"
+          },
+          {
+            "type": "latex",
+            "content": "\\boxed{S \\to a \\mid aA \\quad A \\to a \\mid aA \\mid aAA}"
+          }
+        ],
+        "marks": 4,
+        "visual_description": "None",
+        "slug": "context_free_grammar_gnf_conversion",
+        "review_notes": null
+      },
+      {
+        "id": "07f540f7-6473-45bc-a3f3-c73c37d77d27",
+        "question": [
+          {
+            "type": "text",
+            "content": "Given the context-free grammar $R$: $E \\rightarrow ST$, $S \\rightarrow TT \\mid F$, $T \\rightarrow ST \\mid G$. Use the CYK algorithm to determine whether the string $FFGGF$ is in the language generated by the given grammar."
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### Solution\n\nWe apply the **Cocke\u2013Younger\u2013Kasami (CYK) algorithm** to determine whether the string `FFGGF` belongs to the language generated by grammar **R**:"
+          },
+          {
+            "type": "latex",
+            "content": "\\begin{aligned}\nE &\\to S\\;T \\\\\nS &\\to T\\;T \\mid F \\\\\nT &\\to S\\;T \\mid G\n\\end{aligned}"
+          },
+          {
+            "type": "text",
+            "content": "#### Step 1: Grammar in Chomsky Normal Form (CNF)\nA CFG is in CNF if every production is either:\n- $A \\to B\\;C$ (two non\u2011terminals), or  \n- $A \\to a$ (a single terminal).\n\nAll rules of **R** satisfy this:\n- $E \\to S\\;T$  \n- $S \\to T\\;T$  \n- $S \\to F$  \n- $T \\to S\\;T$  \n- $T \\to G$\n\nHence, no transformation is needed."
+          },
+          {
+            "type": "text",
+            "content": "#### Step 2: String and Initialization\nLet the string be $w = w_1 w_2 w_3 w_4 w_5 = \\text{F F G G F}$.  \nDefine $P[i,j]$ as the set of non\u2011terminals generating the substring from position $i$ to $j$ (inclusive).\n\n**Base case** ($j=i$):\n- $P[1,1] = \\{ S \\}$ because $S \\to F$\n- $P[2,2] = \\{ S \\}$\n- $P[3,3] = \\{ T \\}$ because $T \\to G$\n- $P[4,4] = \\{ T \\}$\n- $P[5,5] = \\{ S \\}$"
+          },
+          {
+            "type": "text",
+            "content": "#### Step 3: CYK Iteration for Longer Substrings\nWe iterate over substring lengths $L = 2$ to $5$. For each $i,j$ with $j = i+L-1$, we compute $P[i,j]$ by examining all splits $k$ ($i \\le k < j$) and production rules $A \\to B\\;C$.\n\nThe relevant binary productions are:"
+          },
+          {
+            "type": "latex",
+            "content": "E \\to S\\;T, \\quad S \\to T\\;T, \\quad T \\to S\\;T."
+          },
+          {
+            "type": "text",
+            "content": "**Length $L=2$:**\n- $P[1,2]$: substring `FF` \u2192 no binary rule applies.  \n  $P[1,2] = \\varnothing$\n- $P[2,3]$: substring `FG` \u2192 $S \\in P[2,2], T \\in P[3,3]$ gives $E$ (via $E \\to S\\;T$) and $T$ (via $T \\to S\\;T$).  \n  $P[2,3] = \\{E, T\\}$\n- $P[3,4]$: substring `GG` \u2192 $T \\in P[3,3], T \\in P[4,4]$ gives $S$ (via $S \\to T\\;T$).  \n  $P[3,4] = \\{S\\}$\n- $P[4,5]$: substring `GF` \u2192 no binary rule applies.  \n  $P[4,5] = \\varnothing$\n\n**Length $L=3$:**\n- $P[1,3]$: substring `FFG`  \n  Split at $k=1$: $S \\in P[1,1], T \\in P[2,3]$ gives $E$ and $T$ (via $E \\to S\\;T$ and $T \\to S\\;T$).  \n  $P[1,3] = \\{E, T\\}$\n- $P[2,4]$: substring `FGG`  \n  Split at $k=3$: $T \\in P[2,3], T \\in P[4,4]$ gives $S$ (via $S \\to T\\;T$).  \n  $P[2,4] = \\{S\\}$\n- $P[3,5]$: substring `GGF` \u2192 no split yields a valid binary rule.  \n  $P[3,5] = \\varnothing$\n\n**Length $L=4$:**\n- $P[1,4]$: substring `FFGG`  \n  Split at $k=3$: $T \\in P[1,3], T \\in P[4,4]$ gives $S$ (via $S \\to T\\;T$).  \n  $P[1,4] = \\{S\\}$\n- $P[2,5]$: substring `FGGF` \u2192 no split yields a valid binary rule.  \n  $P[2,5] = \\varnothing$\n\n**Length $L=5$:**\n- $P[1,5]$: substring `FFGGF` (the whole string)  \n  All splits ($k=1,2,3,4$) fail to combine non\u2011terminals via a binary rule.  \n  $P[1,5] = \\varnothing$"
+          },
+          {
+            "type": "text",
+            "content": "#### Step 4: CYK Table (Textual Representation)\n\n> **Visual Representation of CYK Table**  \n> The table below lists $P[i,j]$ for $1 \\le i \\le j \\le 5$. Rows correspond to start index $i$, columns to end index $j$. Empty cells denote $\\varnothing$."
+          },
+          {
+            "type": "html",
+            "content": "<table class=\"academic-table\">\n  <thead>\n    <tr>\n      <th>$i$</th>\n      <th>$j=1$</th>\n      <th>$j=2$</th>\n      <th>$j=3$</th>\n      <th>$j=4$</th>\n      <th>$j=5$</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>1</td>\n      <td>$\\{S\\}$</td>\n      <td>$\\varnothing$</td>\n      <td>$\\{E,T\\}$</td>\n      <td>$\\{S\\}$</td>\n      <td>$\\varnothing$</td>\n    </tr>\n    <tr>\n      <td>2</td>\n      <td></td>\n      <td>$\\{S\\}$</td>\n      <td>$\\{E,T\\}$</td>\n      <td>$\\{S\\}$</td>\n      <td>$\\varnothing$</td>\n    </tr>\n    <tr>\n      <td>3</td>\n      <td></td>\n      <td></td>\n      <td>$\\{T\\}$</td>\n      <td>$\\{S\\}$</td>\n      <td>$\\varnothing$</td>\n    </tr>\n    <tr>\n      <td>4</td>\n      <td></td>\n      <td></td>\n      <td></td>\n      <td>$\\{T\\}$</td>\n      <td>$\\varnothing$</td>\n    </tr>\n    <tr>\n      <td>5</td>\n      <td></td>\n      <td></td>\n      <td></td>\n      <td></td>\n      <td>$\\{S\\}$</td>\n    </tr>\n  </tbody>\n</table>"
+          },
+          {
+            "type": "text",
+            "content": "> **Explanation**:  \n> - Diagonal cells ($i=j$) are filled from terminal rules.  \n> - Each off\u2011diagonal cell is computed by combining non\u2011terminals from shorter substrings using binary productions."
+          },
+          {
+            "type": "text",
+            "content": "#### Step 5: Decision\nThe start symbol is $E$. The string is accepted iff $E \\in P[1,5]$. From the table, $P[1,5] = \\varnothing$; therefore, $E$ is **not** present."
+          },
+          {
+            "type": "latex",
+            "content": "\\boxed{\\text{The string ``FFGGF'' is **not** in the language generated by grammar R.}}"
+          }
+        ],
+        "marks": 10,
+        "visual_description": "None",
+        "slug": "cyk_algorithm_grammar_parsing",
+        "review_notes": null
+      }
+    ],
+    "Module 5: Pushdown Automata": [
+      {
+        "id": "3da33b5d-d062-4023-9191-576b8abd0919",
+        "question": [
+          {
+            "type": "text",
+            "content": "Give a pushdown automaton (PDA) that recognizes the language $L$ of all strings $w \\in \\{0,1\\}^*$ such that:\n1. The first and last symbol of $w$ are the same.\n2. If the length of $w$ is odd, then the middle symbol of $w$ is different from the first and last symbols."
+          },
+          {
+            "type": "text",
+            "content": "For example, the following strings are in $L$:\n- $00$, $11$, $010$, $010100010010$, $0101010$"
+          },
+          {
+            "type": "text",
+            "content": "And the following strings are not in $L$:\n- $\\lambda$ (empty string), $0$, $1$, $000$, $111$, $110$, $00001$, $1001001$"
+          },
+          {
+            "type": "text",
+            "content": "Show the configurations made by the constructed PDA for the input strings:\n(a) $0101010$\n(b) $111$"
+          }
+        ],
+        "answer": [],
+        "marks": 10,
+        "visual_description": "None",
+        "slug": "pushdown_automaton_string_recognition",
+        "review_notes": null
+      },
+      {
+        "id": "30af7975-0b18-4028-8da4-c2d3f5b25a49",
+        "question": [
+          {
+            "type": "text",
+            "content": "For the language $L$ consisting of strings over the alphabet $\\{\\#, @\\}$ where every '#' symbol is uniquely paired with a subsequent '@' symbol, every '@' symbol is uniquely paired with a preceding '#' symbol, and the substring between any such pair exhibits the same property, formally derive the context-free grammar for $L$ and construct a Pushdown Automaton (PDA) that accepts $L$."
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### Formal Definition of Language $L$\n\nThe language $L$ over the alphabet $\\Sigma = \\{ \\#, @ \\}$ is defined by the following properties:\n\n1. Every occurrence of `#` is uniquely paired with a subsequent occurrence of `@`.\n2. Every occurrence of `@` is uniquely paired with a preceding occurrence of `#`.\n3. For any such pair `#` and `@`, the substring enclosed between them (excluding the pair itself) also satisfies these three properties.\n\nThis describes a **nested pairing structure** analogous to balanced parentheses, where `#` acts as an opening bracket and `@` as a closing bracket."
+          },
+          {
+            "type": "text",
+            "content": "### Context-Free Grammar for $L$\n\nA context-free grammar $G = (V, \\Sigma, R, S)$ generating $L$ is:\n\n- Variables: $V = \\{ S \\}$\n- Terminals: $\\Sigma = \\{ \\#, @ \\}$\n- Start symbol: $S$\n- Production rules $R$:"
+          },
+          {
+            "type": "latex",
+            "content": "S \\to \\varepsilon \\mid \\#\\,S\\,@\\,S"
+          },
+          {
+            "type": "text",
+            "content": "**Alternative formulation** (equivalent but ambiguous):"
+          },
+          {
+            "type": "latex",
+            "content": "S \\to \\varepsilon \\mid \\#\\,S\\,@ \\mid S\\,S"
+          },
+          {
+            "type": "text",
+            "content": "#### Justification\n\nThe grammar captures the recursive nature of $L$:\n\n- **Base case**: The empty string $\\varepsilon$ is in $L$.\n- **Inductive step**: If $w \\in L$, then surrounding it with a pair `#` and `@` yields `# w @` \u2208 $L$. Additionally, concatenation of two strings in $L$ remains in $L$.\n\nThe rule $S \\to \\#\\,S\\,@\\,S$ combines both aspects: the first `S` generates the substring between the pair, and the second `S` generates any following balanced substring. This ensures proper nesting and unique pairing."
+          },
+          {
+            "type": "text",
+            "content": "### Pushdown Automaton for $L$\n\nA pushdown automaton (PDA) that accepts $L$ by empty stack is defined as:\n\n\\[\nP = (Q, \\Sigma, \\Gamma, \\delta, q_0, Z_0, F)\n\\]\n\nwhere:\n- $Q = \\{ q_0 \\}$ (single state)\n- $\\Sigma = \\{ \\#, @ \\}$\n- $\\Gamma = \\{ \\#, Z_0 \\}$ (stack alphabet with bottom marker $Z_0$)\n- $q_0$ is the start state\n- $Z_0$ is the initial stack symbol\n- $F = \\emptyset$ (acceptance by empty stack)\n- Transition function $\\delta$ (from $Q \\times (\\Sigma \\cup \\{\\varepsilon\\}) \\times \\Gamma$ to finite subsets of $Q \\times \\Gamma^*$):"
+          },
+          {
+            "type": "html",
+            "content": "<table class=\"academic-table\">\n  <thead>\n    <tr>\n      <th>Current State</th>\n      <th>Input Symbol</th>\n      <th>Stack Top</th>\n      <th>New State</th>\n      <th>Stack Operation</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>$q_0$</td>\n      <td>$\\#$</td>\n      <td>$Z_0$</td>\n      <td>$q_0$</td>\n      <td>push $\\# Z_0$</td>\n    </tr>\n    <tr>\n      <td>$q_0$</td>\n      <td>$\\#$</td>\n      <td>$\\#$</td>\n      <td>$q_0$</td>\n      <td>push $\\# \\#$</td>\n    </tr>\n    <tr>\n      <td>$q_0$</td>\n      <td>$@$</td>\n      <td>$\\#$</td>\n      <td>$q_0$</td>\n      <td>pop ($\\varepsilon$)</td>\n    </tr>\n    <tr>\n      <td>$q_0$</td>\n      <td>$\\varepsilon$</td>\n      <td>$Z_0$</td>\n      <td>$q_0$</td>\n      <td>pop ($\\varepsilon$)</td>\n    </tr>\n  </tbody>\n</table>"
+          },
+          {
+            "type": "text",
+            "content": "**Visual Representation of the PDA:**\n\n*State*: A single state $q_0$, represented as a circle labeled \"q0\".  \n*Stack*: Initially contains $Z_0$ (bottom marker).  \n*Transitions* (arrows from $q_0$ to itself):\n  - On input `#` and stack top $Z_0$: Pop $Z_0$ and push $\\# Z_0$, so stack becomes $\\# Z_0$.\n  - On input `#` and stack top `#`: Pop `#` and push $\\# \\#$, so stack gains one additional `#`.\n  - On input `@` and stack top `#`: Pop `#$, removing the topmost `#` from stack.\n  - On input $\\varepsilon$ and stack top $Z_0$: Pop $Z_0$, leaving the stack empty.  \n*Acceptance*: The PDA accepts when the entire input is consumed and the stack is empty. The $\\varepsilon$-transition on $Z_0$ allows emptying the stack after processing all input symbols."
+          },
+          {
+            "type": "graphviz",
+            "content": "digraph G {\n  rankdir=LR;\n  node [shape=circle];\n  q0 [label=\"q0\"];\n  q0 -> q0 [label=\"# / Z0 \u2192 # Z0\"];\n  q0 -> q0 [label=\"# / # \u2192 # #\"];\n  q0 -> q0 [label=\"@ / # \u2192 \u03b5\"];\n  q0 -> q0 [label=\"\u03b5 / Z0 \u2192 \u03b5\"];\n}"
+          },
+          {
+            "type": "text",
+            "content": "#### PDA Operation Explanation\n\nThe PDA uses the stack to track unmatched `#` symbols:\n\n1. **Reading `#`**: Push `#` onto the stack, recording an unmatched opening symbol. Specifically:\n   - If the stack top is $Z_0$, replace it with $\\# Z_0$.\n   - If the stack top is `#`, replace it with $\\# \\#$ (net increase of one `#`).\n2. **Reading `@`**: Pop the top `#` from the stack, matching it with the current `@`. If the stack top is not `#` (i.e., it is $Z_0$), the transition is undefined, causing rejection.\n3. **End of input**: After consuming the entire input, the PDA uses the $\\varepsilon$-transition to pop $Z_0$ only if the stack contains just $Z_0$. This ensures acceptance only when all `#` symbols have been matched.\n\nThis mechanism enforces the nesting condition: each `@` matches the most recent unmatched `#`, guaranteeing that substrings between pairs are well-formed.\n\n**Example**: For input `##@@`:\n- Read first `#`: stack = $\\# Z_0$.\n- Read second `#`: stack = $\\# \\# Z_0$.\n- Read first `@`: pop `#`, stack = $\\# Z_0$.\n- Read second `@`: pop `#`, stack = $Z_0$.\n- Use $\\varepsilon$-transition on $Z_0$: pop $Z_0$, stack empty \u2192 accept.\n\nFor invalid input like `#@#`:\n- Read first `#`: stack = $\\# Z_0$.\n- Read `@`: pop `#`, stack = $Z_0$.\n- Read `#`: pop $Z_0$ and push $\\# Z_0$, stack = $\\# Z_0$.\n- End: stack not empty (top is `#`) and no applicable $\\varepsilon$-transition \u2192 reject."
+          }
+        ],
+        "marks": 10,
+        "visual_description": "None",
+        "slug": "context_free_grammar_pda_construction",
+        "review_notes": null
+      },
+      {
+        "id": "94318d27-eaf9-45a0-bff8-2b9db09c3166",
+        "question": [
+          {
+            "type": "text",
+            "content": "a) Consider the Pushdown Automaton (PDA) designed to accept palindrome strings over the alphabet $\\{a, b\\}$. For the input string 'ababababa', an incomplete trace sequence of instantaneous descriptions (IDs) is provided. Each ID represents a configuration (state, remaining input string, stack content) during the PDA's computation, starting from $(q_0, \\text{ababababa}, Z_0)$. The sequence includes several IDs with blanks for the state, partial input string, or stack content. Based on the PDA's operation for palindrome acceptance, fill in these blanks to complete the trace sequence. Note: $q_0$ is the start state, $q_f$ is the final state, and $Z_0$ is the start stack symbol."
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### Solution\n\nThe Pushdown Automaton (PDA) accepts palindrome strings over the alphabet $\\{a, b\\}$ by final state. For the input string `ababababa` (an odd-length palindrome), the PDA follows a computation that pushes the first half of the string onto the stack, non-deterministically guesses the middle symbol, and then matches the remaining input against the stack content. The instantaneous descriptions (IDs) trace the configuration (state, remaining input, stack) step by step.\n\nThe typical transitions for such a PDA are:"
+          },
+          {
+            "type": "latex",
+            "content": "\\delta(q_0, a, Z_0) = \\{(q_0, aZ_0)\\}"
+          },
+          {
+            "type": "latex",
+            "content": "\\delta(q_0, b, Z_0) = \\{(q_0, bZ_0)\\}"
+          },
+          {
+            "type": "latex",
+            "content": "\\delta(q_0, a, a) = \\{(q_0, aa), (q_1, \\varepsilon)\\}"
+          },
+          {
+            "type": "text",
+            "content": "(push $a$ or guess middle and pop)"
+          },
+          {
+            "type": "latex",
+            "content": "\\delta(q_0, a, b) = \\{(q_0, ab)\\}"
+          },
+          {
+            "type": "latex",
+            "content": "\\delta(q_0, b, a) = \\{(q_0, ba)\\}"
+          },
+          {
+            "type": "latex",
+            "content": "\\delta(q_0, b, b) = \\{(q_0, bb), (q_1, \\varepsilon)\\}"
+          },
+          {
+            "type": "text",
+            "content": "(push $b$ or guess middle and pop)"
+          },
+          {
+            "type": "latex",
+            "content": "\\delta(q_0, a, X) \\ni (q_1, X) \\text{ for } X \\in \\{a,b,Z_0\\}"
+          },
+          {
+            "type": "text",
+            "content": "(guess odd middle without changing stack)"
+          },
+          {
+            "type": "latex",
+            "content": "\\delta(q_0, b, X) \\ni (q_1, X) \\text{ for } X \\in \\{a,b,Z_0\\}"
+          },
+          {
+            "type": "latex",
+            "content": "\\delta(q_0, \\varepsilon, X) = \\{(q_1, X)\\} \\text{ for } X \\in \\{a,b,Z_0\\}"
+          },
+          {
+            "type": "text",
+            "content": "(guess even middle)"
+          },
+          {
+            "type": "latex",
+            "content": "\\delta(q_1, a, a) = \\{(q_1, \\varepsilon)\\}"
+          },
+          {
+            "type": "text",
+            "content": "(match and pop)"
+          },
+          {
+            "type": "latex",
+            "content": "\\delta(q_1, b, b) = \\{(q_1, \\varepsilon)\\}"
+          },
+          {
+            "type": "latex",
+            "content": "\\delta(q_1, \\varepsilon, Z_0) = \\{(q_f, Z_0)\\}"
+          },
+          {
+            "type": "text",
+            "content": "(move to final state)\n\nFor the input `ababababa`, one accepting computation yields the following complete trace of IDs. The stack is represented with the top symbol on the left."
+          },
+          {
+            "type": "html",
+            "content": "<table class=\"academic-table\">\n  <thead>\n    <tr>\n      <th>Step</th>\n      <th>State</th>\n      <th>Remaining Input</th>\n      <th>Stack (top left)</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>0</td>\n      <td>$q_0$</td>\n      <td>`ababababa`</td>\n      <td>$Z_0$</td>\n    </tr>\n    <tr>\n      <td>1</td>\n      <td>$q_0$</td>\n      <td>`babababa`</td>\n      <td>$aZ_0$</td>\n    </tr>\n    <tr>\n      <td>2</td>\n      <td>$q_0$</td>\n      <td>`abababa`</td>\n      <td>$baZ_0$</td>\n    </tr>\n    <tr>\n      <td>3</td>\n      <td>$q_0$</td>\n      <td>`bababa`</td>\n      <td>$abaZ_0$</td>\n    </tr>\n    <tr>\n      <td>4</td>\n      <td>$q_0$</td>\n      <td>`ababa`</td>\n      <td>$babaZ_0$</td>\n    </tr>\n    <tr>\n      <td>5</td>\n      <td>$q_1$</td>\n      <td>`baba`</td>\n      <td>$babaZ_0$</td>\n    </tr>\n    <tr>\n      <td>6</td>\n      <td>$q_1$</td>\n      <td>`aba`</td>\n      <td>$abaZ_0$</td>\n    </tr>\n    <tr>\n      <td>7</td>\n      <td>$q_1$</td>\n      <td>`ba`</td>\n      <td>$baZ_0$</td>\n    </tr>\n    <tr>\n      <td>8</td>\n      <td>$q_1$</td>\n      <td>`a`</td>\n      <td>$aZ_0$</td>\n    </tr>\n    <tr>\n      <td>9</td>\n      <td>$q_1$</td>\n      <td>$\\varepsilon$</td>\n      <td>$Z_0$</td>\n    </tr>\n    <tr>\n      <td>10</td>\n      <td>$q_f$</td>\n      <td>$\\varepsilon$</td>\n      <td>$Z_0$</td>\n    </tr>\n  </tbody>\n</table>"
+          },
+          {
+            "type": "text",
+            "content": "**Explanation of key steps:**\n\n- **Steps 1\u20134**: The PDA remains in state $q_0$, reading and pushing symbols onto the stack. After four steps, the first four symbols (`a`, `b`, `a`, `b`) are pushed, resulting in stack `babaZ_0` (top `b`).\n- **Step 5**: The PDA non-deterministically guesses that the next symbol (`a`) is the middle of the odd-length palindrome. It consumes this symbol without altering the stack and transitions to state $q_1$.\n- **Steps 6\u20139**: In state $q_1$, the PDA matches each input symbol with the top of the stack and pops the stack. Since the remaining input `baba` is the reverse of the pushed prefix, the stack is emptied step by step.\n- **Step 10**: With empty input and only $Z_0$ on the stack, the PDA transitions to the final state $q_f$, accepting the string.\n\nThis trace completes the sequence of IDs for the given input. The blanks in the original incomplete trace should be filled accordingly, assuming they correspond to the missing states, inputs, or stack contents in the above table."
+          }
+        ],
+        "marks": 5,
+        "visual_description": "None",
+        "slug": "pushdown_automaton_palindrome_trace_sequence",
+        "review_notes": null
+      },
+      {
+        "id": "4729ec75-afcd-473f-8468-025a697609ec",
+        "question": [
+          {
+            "type": "text",
+            "content": "b) Construct a pushdown automaton (PDA) for the language $L = \\{a^n c b^n \\mid n \\geq 1\\}$. Provide the complete transition rules, ensuring that the PDA pushes '$a$' onto the stack when reading '$a$' and pops '$a$' when reading '$b$' after the '$c$' to verify the count."
+          }
+        ],
+        "answer": [
+          {
+            "type": "text",
+            "content": "### Pushdown Automaton for $L = \\{ a^n c b^n \\mid n \\ge 1 \\}$\n\nWe construct a deterministic pushdown automaton (DPDA) that accepts $L$ by final state. The PDA uses the stack to count the number of $a$'s and match them with the same number of $b$'s after the single $c$."
+          },
+          {
+            "type": "text",
+            "content": "#### Formal Definition\nThe PDA is defined as the 7-tuple $M = (Q, \\Sigma, \\Gamma, \\delta, q_0, Z_0, F)$:"
+          },
+          {
+            "type": "html",
+            "content": "<table class=\"academic-table\">\n<tr><th>Component</th><th>Definition</th></tr>\n<tr><td><strong>States</strong></td><td>$Q = \\{q_0, q_1, q_2\\}$</td></tr>\n<tr><td><strong>Input alphabet</strong></td><td>$\\Sigma = \\{a, b, c\\}$</td></tr>\n<tr><td><strong>Stack alphabet</strong></td><td>$\\Gamma = \\{a, Z_0\\}$ (where $Z_0$ is the initial stack symbol)</td></tr>\n<tr><td><strong>Start state</strong></td><td>$q_0$</td></tr>\n<tr><td><strong>Start stack symbol</strong></td><td>$Z_0$</td></tr>\n<tr><td><strong>Final states</strong></td><td>$F = \\{q_2\\}$</td></tr>\n</table>"
+          },
+          {
+            "type": "text",
+            "content": "#### Transition Rules\nThe transition function $\\delta$ is given by the following rules:"
+          },
+          {
+            "type": "html",
+            "content": "<table class=\"academic-table\">\n<tr><th>Rule</th><th>Description</th></tr>\n<tr><td>1. $\\delta(q_0, a, Z_0) = (q_0, aZ_0)$</td><td>Read $a$ with $Z_0$ on stack: push $a$, stay in $q_0$.</td></tr>\n<tr><td>2. $\\delta(q_0, a, a) = (q_0, aa)$</td><td>Read $a$ with $a$ on stack: push another $a$, stay in $q_0$.</td></tr>\n<tr><td>3. $\\delta(q_0, c, a) = (q_1, a)$</td><td>Read $c$ with $a$ on stack: move to $q_1$, stack unchanged.</td></tr>\n<tr><td>4. $\\delta(q_1, b, a) = (q_1, \\varepsilon)$</td><td>Read $b$ with $a$ on stack: pop $a$, stay in $q_1$.</td></tr>\n<tr><td>5. $\\delta(q_1, \\varepsilon, Z_0) = (q_2, Z_0)$</td><td>Without reading input, if $Z_0$ is on top: move to final state $q_2$, stack unchanged.</td></tr>\n</table>"
+          },
+          {
+            "type": "text",
+            "content": "All undefined transitions lead to a dead configuration (i.e., the PDA crashes)."
+          },
+          {
+            "type": "text",
+            "content": "#### Explanation\n- **State $q_0$**: Reads and pushes $a$'s onto the stack. At least one $a$ must be read (since $n \\ge 1$).  \n- **Transition on $c$**: After reading one or more $a$'s, the PDA reads exactly one $c$. This is allowed only if there is an $a$ on the stack (ensuring $n \\ge 1$). The machine moves to $q_1$ without modifying the stack.  \n- **State $q_1$**: Reads $b$'s and pops one $a$ for each $b$. This ensures the number of $b$'s matches the number of $a$'s.  \n- **Acceptance**: After popping all $a$'s, the stack top becomes $Z_0$. The PDA then uses an $\\varepsilon$-transition to move to the final state $q_2$. If any extra input remains, the PDA will crash in $q_2$ (no outgoing transitions), so acceptance occurs only when the entire input is consumed."
+          },
+          {
+            "type": "text",
+            "content": "#### Visual Representation (State Diagram)\nA state diagram for the PDA can be described as follows:\n\n- **States**: Circles labeled $q_0$, $q_1$, $q_2$; $q_2$ is double-circled to indicate it is a final state.\n- **Transitions**: Arrows labeled with input symbol, stack top, and stack operation (push/pop).\n  - From $q_0$ to $q_0$:  \n    - On $a, Z_0 \\rightarrow aZ_0$  \n    - On $a, a \\rightarrow aa$\n  - From $q_0$ to $q_1$:  \n    - On $c, a \\rightarrow a$\n  - From $q_1$ to $q_1$:  \n    - On $b, a \\rightarrow \\varepsilon$\n  - From $q_1$ to $q_2$:  \n    - On $\\varepsilon, Z_0 \\rightarrow Z_0$\n- **Start**: An arrow pointing to $q_0$ denotes the start state.\n- **Initial stack**: Contains $Z_0$."
+          },
+          {
+            "type": "graphviz",
+            "content": "digraph G {\n  rankdir=LR;\n  node [shape=circle];\n  q0 [label=\"q0\"];\n  q1 [label=\"q1\"];\n  q2 [label=\"q2\", peripheries=2];\n  start [shape=none, label=\"\"];\n  start -> q0;\n  q0 -> q0 [label=\"a, Z_0 / aZ_0\"];\n  q0 -> q0 [label=\"a, a / aa\"];\n  q0 -> q1 [label=\"c, a / a\"];\n  q1 -> q1 [label=\"b, a / \u03b5\"];\n  q1 -> q2 [label=\"\u03b5, Z_0 / Z_0\"];\n}"
+          },
+          {
+            "type": "text",
+            "content": "This PDA correctly accepts exactly the strings of the form $a^n c b^n$ for $n \\ge 1$."
+          }
+        ],
+        "marks": 5,
+        "visual_description": "None",
+        "slug": "pushdown_automaton_construction",
+        "review_notes": null
+      }
+    ]
+  }
+}

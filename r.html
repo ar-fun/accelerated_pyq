@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-font="sans" data-layout="centered">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Dashboard</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Roboto:wght@400;500;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- Highlight.js for Code Formatting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hl-style">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- MathJax for LaTeX -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], processEscapes: true },
+            svg: { fontCache: 'global' },
+            startup: { typeset: false }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" id="MathJax-script"></script>
+
+    <style>
+        /* ── THEME VARIABLES (GitHub Inspired) ── */
+        :root {
+            --sidebar-w: 280px;
+            --navbar-h: 60px;
+            --content-max-w: 900px;
+            --radius: 8px;
+            --transition: all 0.2s ease;
+        }
+
+        /* GitHub Light Theme */
+        [data-theme="light"] {
+            --bg-page: #ffffff;
+            --bg-card: #ffffff;
+            --bg-subtle: #f6f8fa;
+            --bg-hover: #eaeef2;
+            --fg-default: #1F2328;
+            --fg-muted: #656d76;
+            --border-default: #d0d7de;
+            --border-muted: #e1e4e8;
+            --accent: #0969da;
+            --accent-hover: #0349a3;
+            --accent-bg: #ddf4ff;
+            --success: #1a7f37;
+            --success-bg: #dafbe1;
+            --success-border: #4ac26b;
+            --shadow: 0 3px 6px rgba(140, 149, 159, 0.15);
+        }
+
+        /* GitHub Dark Theme */
+        [data-theme="dark"] {
+            --bg-page: #0d1117;
+            --bg-card: #0d1117;
+            --bg-subtle: #161b22;
+            --bg-hover: #21262d;
+            --fg-default: #e6edf3;
+            --fg-muted: #848d97;
+            --border-default: #30363d;
+            --border-muted: #21262d;
+            --accent: #2f81f7;
+            --accent-hover: #58a6ff;
+            --accent-bg: rgba(56, 139, 253, 0.15);
+            --success: #3fb950;
+            --success-bg: rgba(46, 160, 67, 0.15);
+            --success-border: #2ea043;
+            --shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Sepia Theme */
+        [data-theme="sepia"] {
+            --bg-page: #fdf6e3;
+            --bg-card: #fdf6e3;
+            --bg-subtle: #eee8d5;
+            --bg-hover: #e5dfcb;
+            --fg-default: #657b83;
+            --fg-muted: #93a1a1;
+            --border-default: #d3c6aa;
+            --border-muted: #eaddc4;
+            --accent: #b58900;
+            --accent-hover: #cb4b16;
+            --accent-bg: #fdf0c9;
+            --success: #859900;
+            --success-bg: #e2eac2;
+            --success-border: #a6b537;
+            --shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Font Preferences */
+        [data-font="sans"] { --font-main: "Inter", system-ui, sans-serif; --font-code: "JetBrains Mono", monospace; }
+        [data-font="roboto"] { --font-main: "Roboto", system-ui, sans-serif; --font-code: "Fira Code", monospace; }
+        [data-font="serif"] { --font-main: "Lora", Georgia, serif; --font-code: "JetBrains Mono", monospace; }
+        [data-font="garamond"] { --font-main: "EB Garamond", Georgia, serif; --font-code: "Fira Code", monospace; }
+
+        /* Layout Preferences */
+        [data-layout="full"] { --content-max-w: 100%; }
+
+        /* ── GLOBAL STYLES ── */
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-main);
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--fg-default);
+            margin: 0;
+            padding: 0;
+            background: var(--bg-page);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            height: var(--navbar-h);
+            background: var(--bg-subtle);
+            border-bottom: 1px solid var(--border-default);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+        }
+
+        .navbar-brand {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--fg-default);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-brand svg { stroke: var(--accent); }
+
+        .nav-actions { display: flex; gap: 12px; }
+
+        .icon-btn {
+            background: transparent;
+            border: 1px solid var(--border-default);
+            color: var(--fg-muted);
+            padding: 6px 10px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-family: var(--font-code);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+
+        .icon-btn:hover {
+            background: var(--bg-hover);
+            color: var(--fg-default);
+        }
+
+        /* ── SETTINGS MODAL ── */
+        .settings-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(2px);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+        .settings-overlay.open { opacity: 1; pointer-events: auto; }
+        .settings-modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border-default);
+            padding: 32px;
+            width: 90%;
+            max-width: 420px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transform: translateY(20px);
+            transition: transform 0.2s;
+        }
+        .settings-overlay.open .settings-modal { transform: translateY(0); }
+        
+        .settings-modal h3 { margin: 0 0 24px; font-size: 1.25rem; }
+        .setting-group { margin-bottom: 20px; }
+        .setting-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--fg-muted);
+            margin-bottom: 8px;
+        }
+        .setting-select {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg-page);
+            color: var(--fg-default);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius);
+            font-family: var(--font-main);
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+        .setting-select:focus { outline: 2px solid var(--accent); border-color: transparent; }
+        .close-settings {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-subtle);
+            color: var(--fg-default);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 10px;
+            transition: var(--transition);
+        }
+        .close-settings:hover { background: var(--bg-hover); }
+
+        /* ── DASHBOARD ── */
+        .dashboard-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        .dashboard-header { border-bottom: 1px solid var(--border-default); padding-bottom: 16px; margin-bottom: 32px; }
+        .dashboard-header h2 { font-size: 2rem; font-weight: 600; margin: 0 0 8px; }
+        .dashboard-header p { font-size: 1rem; color: var(--fg-muted); margin: 0; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 48px;
+        }
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-default);
+            padding: 24px;
+            border-radius: var(--radius);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: var(--transition);
+        }
+        .card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-2px); }
+        .card-num { font-size: 0.75rem; color: var(--fg-muted); font-family: var(--font-code); margin-bottom: 8px; }
+        .card h3 { margin: 0 0 12px; font-size: 1.1rem; font-weight: 600; }
+        .card p { margin: 0; color: var(--fg-muted); font-size: 0.85rem; font-family: var(--font-code); }
+        
+        .progress-bar { height: 6px; background: var(--bg-hover); margin-top: 16px; border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.5s ease; }
+
+        /* ── HISTORY ── */
+        .history-section h3 { font-size: 1rem; font-weight: 600; margin: 0 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border-default); }
+        .history-item { padding: 12px 0; border-bottom: 1px solid var(--border-muted); display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; gap: 16px; }
+        .history-item .snippet { color: var(--fg-default); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+        .history-item .date { color: var(--fg-muted); font-size: 0.8rem; font-family: var(--font-code); flex-shrink: 0;}
+
+        /* ── DOCUMENT LAYOUT ── */
+        .doc-layout { display: flex; min-height: calc(100vh - var(--navbar-h)); align-items: flex-start; }
+        .toc-sidebar {
+            width: var(--sidebar-w);
+            background: var(--bg-subtle);
+            border-right: 1px solid var(--border-default);
+            position: sticky;
+            top: var(--navbar-h);
+            height: calc(100vh - var(--navbar-h));
+            overflow-y: auto;
+            padding: 24px;
+            flex-shrink: 0;
+        }
+        .back-link {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 0.9rem; font-weight: 500; color: var(--fg-muted);
+            margin-bottom: 24px; text-decoration: none;
+            transition: var(--transition);
+        }
+        .back-link:hover { color: var(--accent); text-decoration: none; }
+        .toc-label { font-size: 0.8rem; font-weight: 600; color: var(--fg-default); margin-bottom: 12px; display: block; }
+        .toc-link {
+            display: block; padding: 6px 12px; margin-bottom: 4px;
+            color: var(--fg-muted); text-decoration: none; font-size: 0.9rem;
+            border-radius: 6px; transition: var(--transition);
+        }
+        .toc-link:hover { background: var(--bg-hover); color: var(--fg-default); text-decoration: none; }
+
+        /* ── MAIN CONTENT ── */
+        .main-content {
+            flex: 1; padding: 40px 5%; max-width: var(--content-max-w); margin: 0 auto;
+        }
+        .main-title { font-size: 2.2rem; font-weight: 600; margin: 0 0 8px; text-transform: capitalize; }
+        .main-title-rule { border: none; border-top: 1px solid var(--border-default); margin: 24px 0; }
+        .module-title { font-size: 1.5rem; font-weight: 600; margin: 2.5em 0 1em; }
+
+        /* ── QUESTION CARDS ── */
+        .pyq-card {
+            margin-bottom: 2.5em;
+            background: var(--bg-card);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .q-header {
+            padding: 16px 24px;
+            background: var(--bg-subtle);
+            border-bottom: 1px solid var(--border-default);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .q-label { font-size: 0.8rem; font-family: var(--font-code); color: var(--fg-muted); font-weight: 500; }
+        .q-actions { display: flex; gap: 8px; align-items: center; }
+        
+        .pyq-card.completed { border-color: var(--success-border); }
+        .pyq-card.completed .q-header { background: var(--success-bg); border-bottom-color: var(--success-border); }
+
+        .btn {
+            padding: 6px 12px; font-family: var(--font-main); font-size: 0.85rem; font-weight: 500;
+            cursor: pointer; border: 1px solid var(--border-default); background: var(--bg-page);
+            color: var(--fg-default); border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;
+            transition: var(--transition);
+        }
+        .btn:hover { background: var(--bg-hover); border-color: var(--border-muted); }
+        .btn svg { width: 14px; height: 14px; }
+        
+        .btn-google { color: var(--accent); border-color: var(--border-default); }
+        .btn-google:hover { background: var(--accent-bg); border-color: var(--accent); }
+
+        /* ── CHECKBOX ── */
+        .check-container { display: flex; align-items: center; cursor: pointer; gap: 8px; user-select: none; margin-right: 8px; }
+        .check-container input { position: absolute; opacity: 0; }
+        .checkmark {
+            width: 18px; height: 18px; border: 2px solid var(--border-default);
+            background: var(--bg-page); border-radius: 4px; display: flex; align-items: center; justify-content: center;
+        }
+        .check-container input:checked ~ .checkmark { background: var(--success); border-color: var(--success); }
+        .checkmark svg { display: none; width: 12px; height: 12px; stroke: white; stroke-width: 3; }
+        .check-container input:checked ~ .checkmark svg { display: block; }
+        .label-text { font-size: 0.85rem; font-weight: 500; color: var(--fg-muted); }
+        .check-container input:checked ~ .label-text { color: var(--success); }
+
+        /* ── CONTENT RENDERING ── */
+        .q-content { padding: 24px; font-size: 1.05rem; }
+        .a-container { border-top: 1px dashed var(--border-default); padding: 24px; background: var(--bg-page); }
+        .a-container.hidden { display: none; }
+
+        .text-block p { margin: 0 0 1em; }
+        .text-block p:last-child { margin-bottom: 0; }
+        .text-block h1, .text-block h2, .text-block h3 { font-weight: 600; margin: 1.5em 0 0.5em; }
+        .text-block h3 { font-size: 1.1rem; }
+        .text-block ul, .text-block ol { padding-left: 1.5em; margin: 0.5em 0; }
+        .text-block blockquote {
+            border-left: 4px solid var(--border-default);
+            margin: 1em 0; padding: 0 16px; color: var(--fg-muted);
+        }
+
+        .diagram-container {
+            display: flex; justify-content: center; margin: 2em 0; overflow-x: auto;
+            padding: 24px; background: var(--bg-subtle); border: 1px solid var(--border-default); border-radius: var(--radius);
+        }
+        .diagram-container svg { max-width: 100%; height: auto; }
+
+        .code-block pre {
+            background: var(--bg-subtle); border: 1px solid var(--border-default);
+            padding: 16px; border-radius: var(--radius); overflow-x: auto;
+            font-family: var(--font-code); font-size: 0.85rem; line-height: 1.5; margin: 1em 0;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin: 1.5em 0; font-size: 0.95em; }
+        th { background: var(--bg-subtle); border-bottom: 2px solid var(--border-default); padding: 10px 16px; text-align: left; font-weight: 600; }
+        td { padding: 10px 16px; border-bottom: 1px solid var(--border-default); }
+
+        .math-block { margin: 1.5em 0; overflow-x: auto; text-align: center; padding: 8px 0; }
+
+        /* CRITICAL: Restored missing hidden and error-message classes */
+        .hidden { display: none !important; }
+
+        .error-message {
+            padding: 24px;
+            background: #fff1f2;
+            border: 1px solid #fecdd3;
+            border-left: 4px solid #e11d48;
+            color: #9f1239;
+            margin-top: 24px;
+            font-family: var(--font-code);
+            font-size: 0.95rem;
+            border-radius: var(--radius);
+        }
+
+        /* ── RESPONSIVENESS ── */
+        @media (max-width: 850px) {
+            .doc-layout { flex-direction: column; }
+            .toc-sidebar {
+                width: 100%; height: auto; position: static;
+                border-right: none; border-bottom: 1px solid var(--border-default);
+                max-height: 250px; padding: 16px 24px;
+            }
+            .main-content { padding: 24px; max-width: 100%; }
+            .q-header { flex-direction: column; align-items: flex-start; }
+            .q-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; margin-top: 8px;}
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="navbar-brand">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+            Study Dashboard
+        </a>
+        <div class="nav-actions">
+            <button class="icon-btn" onclick="document.getElementById('settings-overlay').classList.add('open')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                Settings
+            </button>
+        </div>
+    </nav>
+
+    <!-- Settings Modal -->
+    <div class="settings-overlay" id="settings-overlay">
+        <div class="settings-modal">
+            <h3>Display Settings</h3>
+            
+            <div class="setting-group">
+                <label>Theme</label>
+                <select id="theme-select" class="setting-select" onchange="window.updateSettings()">
+                    <option value="light">GitHub Light (White)</option>
+                    <option value="dark">GitHub Dark</option>
+                    <option value="sepia">Sepia Reading</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label>Typography</label>
+                <select id="font-select" class="setting-select" onchange="window.updateSettings()">
+                    <option value="sans">Inter (Modern Sans)</option>
+                    <option value="roboto">Roboto (Classic Sans)</option>
+                    <option value="serif">Lora (Modern Serif)</option>
+                    <option value="garamond">EB Garamond (Classic Serif)</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label>Layout Width</label>
+                <select id="layout-select" class="setting-select" onchange="window.updateSettings()">
+                    <option value="centered">Centered (Reading Focus)</option>
+                    <option value="full">Full Width</option>
+                </select>
+            </div>
+
+            <button class="close-settings" onclick="document.getElementById('settings-overlay').classList.remove('open')">Done</button>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard-container hidden">
+        <div class="dashboard-header">
+            <h2>Your Subjects</h2>
+            <p>Select a subject to begin reviewing questions.</p>
+        </div>
+        <div class="grid" id="file-grid"></div>
+        <div class="history-section">
+            <h3>Recent Activity</h3>
+            <div id="history-list"></div>
+        </div>
+    </div>
+
+    <!-- Document Layout -->
+    <div id="document-view" class="doc-layout hidden">
+        <div class="toc-sidebar">
+            <a class="back-link" href="index.html">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                Dashboard
+            </a>
+            <span class="toc-label">Contents</span>
+            <div id="toc"></div>
+        </div>
+        <div class="main-content" id="content"></div>
+    </div>
+
+    <!-- FILE:// PROTOCOL CHECK -->
+    <script>
+        if (window.location.protocol === 'file:') {
+            window.addEventListener('DOMContentLoaded', () => {
+                const dashboard = document.getElementById('dashboard');
+                dashboard.classList.remove('hidden');
+                dashboard.innerHTML = `
+                    <div style="padding: 32px; background: #fff1f2; border: 1px solid #fecdd3; color: #9f1239; border-radius: 8px;">
+                        <strong>🛑 Local Web Server Required</strong><br><br>
+                        You opened this file directly from your computer (file:///).<br>
+                        Browsers block JavaScript from reading local folders for security reasons.<br><br>
+                        <strong>To run properly:</strong><br>
+                        VS Code → "Open with Live Server"<br>
+                        Python → <code>python -m http.server 8000</code> → visit http://localhost:8000
+                    </div>
+                `;
+            });
+        }
+    </script>
+
+    <!-- Application Logic -->
+    <script type="module">
+        import { instance } from "https://unpkg.com/@viz-js/viz@3.2.3/lib/viz-standalone.mjs";
+
+        if (window.location.protocol === 'file:') throw new Error("Stopped: file:// protocol.");
+
+        const DB_FILES = [
+            "a2_cao.json", "a2_daa.json", "a2_micro.json", "a2_snp.json", "a2_toc.json",
+            "a3_cao.json", "a3_daa.json", "a3_micro.json", "a3_snp.json", "a3_toc.json"
+        ];
+
+        let state = { 
+            checked: {}, 
+            history: [], 
+            hiddenAns: {}, // Track which answers are hidden 
+            settings: { theme: 'light', font: 'sans', layout: 'centered' } 
+        };
+        window.currentDocData = null;
+
+        function loadState() { 
+            const s = localStorage.getItem('studyProgress'); 
+            if (s) {
+                const parsed = JSON.parse(s);
+                state.checked = parsed.checked || {};
+                state.history = parsed.history || [];
+                state.hiddenAns = parsed.hiddenAns || {};
+                state.settings = parsed.settings || state.settings;
+            }
+            applySettings();
+        }
+
+        function saveState() { localStorage.setItem('studyProgress', JSON.stringify(state)); }
+
+        // ── SETTINGS ──
+        function applySettings() {
+            document.documentElement.setAttribute('data-theme', state.settings.theme);
+            document.documentElement.setAttribute('data-font', state.settings.font);
+            document.documentElement.setAttribute('data-layout', state.settings.layout);
+
+            document.getElementById('theme-select').value = state.settings.theme;
+            document.getElementById('font-select').value = state.settings.font;
+            document.getElementById('layout-select').value = state.settings.layout;
+
+            const hlTheme = state.settings.theme === 'dark' ? 'github-dark.min.css' : 'github.min.css';
+            document.getElementById('hl-style').href = `https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/${hlTheme}`;
+        }
+
+        window.updateSettings = function() {
+            state.settings.theme = document.getElementById('theme-select').value;
+            state.settings.font = document.getElementById('font-select').value;
+            state.settings.layout = document.getElementById('layout-select').value;
+            applySettings();
+            saveState();
+        };
+
+        function parseMarkdownSafe(text) {
+            let ph = {}, c = 0;
+            text = text.replace(/\$\$(.*?)\$\$/gs, m => { let k = `__MB${c++}__`; ph[k] = m; return k; });
+            text = text.replace(/\$(.*?)\$/g, m => { let k = `__MI${c++}__`; ph[k] = m; return k; });
+            let html = marked.parse(text);
+            for (let k in ph) html = html.replace(k, ph[k]);
+            return html;
+        }
+
+        // SVG Icons for Buttons
+        const iconDown = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+        const iconUp = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>`;
+        const iconSearch = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`;
+
+        async function init() {
+            loadState();
+            const file = new URLSearchParams(window.location.search).get('file');
+            if (file) {
+                document.getElementById('dashboard').classList.add('hidden');
+                document.getElementById('document-view').classList.remove('hidden');
+                await renderDocument(file);
+            } else {
+                document.getElementById('document-view').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                if (DB_FILES.length > 0) await renderDashboard();
+            }
+        }
+
+        async function renderDashboard() {
+            const grid = document.getElementById('file-grid');
+            grid.innerHTML = '';
+            let idx = 1;
+            for (let file of DB_FILES) {
+                try {
+                    const res = await fetch(`db/${file}`);
+                    if (!res.ok) continue;
+                    const data = await res.json();
+                    const modules = data.modules || data;
+                    let total = 0, done = 0;
+                    for (let mod in modules) {
+                        modules[mod].forEach(q => { total++; if (state.checked[q.id]) done++; });
+                    }
+                    const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+                    const title = file.replace('.json', '').replace(/_/g, ' ');
+                    grid.innerHTML += `
+                        <a href="?file=${file}" class="card">
+                            <div class="card-num">Subject ${String(idx).padStart(2, '0')}</div>
+                            <h3>${title}</h3>
+                            <p>${done} / ${total} completed</p>
+                            <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+                        </a>`;
+                    idx++;
+                } catch (e) { }
+            }
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const list = document.getElementById('history-list');
+            list.innerHTML = '';
+            if (state.history.length === 0) {
+                list.innerHTML = '<p style="color:var(--fg-muted); font-style:italic;">No questions completed yet.</p>';
+                return;
+            }
+            state.history.slice(0, 10).forEach(h => {
+                const date = new Date(h.timestamp).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const cleanFile = h.file.replace('.json', '').replace(/_/g, ' ');
+                list.innerHTML += `
+                    <div class="history-item">
+                        <span class="snippet"><strong>${cleanFile}</strong>: ${h.snippet}…</span>
+                        <span class="date">${date}</span>
+                    </div>`;
+            });
+        }
+
+        async function renderDocument(filename) {
+            const toc = document.getElementById('toc');
+            const content = document.getElementById('content');
+            const cleanTitle = filename.replace('.json', '').replace(/_/g, ' ');
+            content.innerHTML = `<h1 class="main-title">${cleanTitle}</h1><hr class="main-title-rule">`;
+
+            try {
+                const res = await fetch(`db/${filename}`);
+                if (!res.ok) throw new Error("File not found.");
+                const data = await res.json();
+                window.currentDocData = data; 
+                
+                const viz = await instance();
+                let modIndex = 1;
+
+                for (const [moduleName, questions] of Object.entries(data.modules || data)) {
+                    const modId = `mod-${modIndex}`;
+                    toc.innerHTML += `<a class="toc-link" href="#${modId}">${moduleName}</a>`;
+
+                    let moduleHTML = `<section id="${modId}"><h2 class="module-title">${moduleName}</h2>`;
+
+                    for (const q of questions) {
+                        const isChecked = state.checked[q.id] ? 'checked' : '';
+                        const cardClass = state.checked[q.id] ? 'pyq-card completed' : 'pyq-card';
+                        
+                        // Extract snippet for history tracking safely
+                        const firstTextBlock = q.question.find(b => b.type === 'text');
+                        const snippetText = firstTextBlock ? firstTextBlock.content.replace(/[\$#_*`]/g, " ").substring(0, 50).trim() : "Question";
+
+                        const qHTML = await renderBlocks(q.question, viz);
+                        const aHTML = await renderBlocks(q.answer, viz);
+                        
+                        // Check saved Answer visibility state (defaults to visible)
+                        const isAnsHidden = state.hiddenAns[q.id] === true;
+                        const ansDisplayClass = isAnsHidden ? 'a-container hidden' : 'a-container';
+                        const toggleIcon = isAnsHidden ? iconDown : iconUp;
+                        const toggleText = isAnsHidden ? 'Show Answer' : 'Hide Answer';
+
+                        moduleHTML += `
+                            <article class="${cardClass}" id="card-${q.id}">
+                                <div class="q-header">
+                                    <span class="q-label">QUESTION</span>
+                                    <div class="q-actions">
+                                        <label class="check-container">
+                                            <input type="checkbox" ${isChecked} onchange="window.toggleCheck('${q.id}', \`${snippetText}\`, '${filename}')">
+                                            <div class="checkmark"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+                                            <span class="label-text">Mark done</span>
+                                        </label>
+                                        <button class="btn btn-google" onclick="window.searchG('${q.id}')">
+                                            ${iconSearch} Search
+                                        </button>
+                                        <button class="btn" id="btn-${q.id}" onclick="window.toggleAns('${q.id}')">
+                                            ${toggleIcon} <span id="btn-text-${q.id}">${toggleText}</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="q-content">${qHTML}</div>
+                                <div class="${ansDisplayClass}" id="ans-${q.id}">${aHTML}</div>
+                            </article>`;
+                    }
+                    moduleHTML += `</section>`;
+                    content.innerHTML += moduleHTML;
+                    modIndex++;
+                }
+
+                hljs.highlightAll();
+                MathJax.typesetPromise();
+
+            } catch (e) {
+                content.innerHTML += `<div class="error-message"><strong>Error:</strong> ${e.message}</div>`;
+            }
+        }
+
+        async function renderBlocks(blocks, viz) {
+            let html = '';
+            for (let b of blocks) {
+                if (b.type === 'text') {
+                    html += `<div class="text-block">${parseMarkdownSafe(b.content)}</div>`;
+                } else if (b.type === 'html') {
+                    html += `<div class="html-block">${b.content}</div>`;
+                } else if (b.type === 'latex') {
+                    html += `<div class="math-block">$$${b.content.replace(/\$\$/g, '').replace(/\$/g, '').trim()}$$</div>`;
+                } else if (b.type === 'code') {
+                    html += `<div class="code-block"><pre><code>${b.content.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre></div>`;
+                } else if (b.type === 'graphviz') {
+                    try {
+                        let dot = b.content.replace(/```dot/g, '').replace(/```/g, '').trim();
+                        if (!dot.includes('bgcolor')) dot = dot.replace('{', '{\nbgcolor="transparent";\n');
+                        const svg = viz.renderSVGElement(dot);
+                        html += `<div class="diagram-container">${svg.outerHTML}</div>`;
+                    } catch (e) {
+                        html += `<div class="error-message">Graphviz Error: ${e}</div>`;
+                    }
+                }
+            }
+            return html;
+        }
+
+        window.toggleAns = function (id) {
+            const ans = document.getElementById(`ans-${id}`);
+            const btnText = document.getElementById(`btn-text-${id}`);
+            const btn = document.getElementById(`btn-${id}`);
+            
+            const isNowHidden = ans.classList.toggle('hidden');
+            state.hiddenAns[id] = isNowHidden; // Save state
+            saveState();
+
+            btnText.textContent = isNowHidden ? 'Show Answer' : 'Hide Answer';
+            btn.innerHTML = `${isNowHidden ? iconDown : iconUp} <span id="btn-text-${id}">${btnText.textContent}</span>`;
+        };
+
+        window.toggleCheck = function (id, snippet, filename) {
+            const card = document.getElementById(`card-${id}`);
+            if (state.checked[id]) {
+                // Unchecking
+                delete state.checked[id];
+                card.classList.remove('completed');
+                state.history = state.history.filter(h => h.id !== id);
+            } else {
+                // Checking (Mark Done)
+                state.checked[id] = true;
+                card.classList.add('completed');
+                state.history.unshift({ id, snippet, file: filename, timestamp: Date.now() });
+                
+                // Auto-hide the answer if marking as done
+                state.hiddenAns[id] = true;
+                const ans = document.getElementById(`ans-${id}`);
+                const btn = document.getElementById(`btn-${id}`);
+                ans.classList.add('hidden');
+                btn.innerHTML = `${iconDown} <span id="btn-text-${id}">Show Answer</span>`;
+            }
+            saveState();
+        };
+
+        // ── GOOGLE SEARCH FIX ──
+        window.searchG = function (qId) {
+            if (!window.currentDocData) return;
+            let questionObj = null;
+            const modules = window.currentDocData.modules || window.currentDocData;
+            
+            for (let mod in modules) {
+                let found = modules[mod].find(x => x.id === qId);
+                if (found) { questionObj = found; break; }
+            }
+            if (!questionObj) return;
+
+            // Combine ALL blocks of the question seamlessly
+            let fullQuery = questionObj.question.map(b => {
+                if (b.type === 'text' || b.type === 'code') return b.content;
+                if (b.type === 'latex') return b.content.replace(/\$/g, "");
+                if (b.type === 'html') return b.content.replace(/<[^>]*>?/gm, ' '); // Strip HTML tags
+                return "";
+            }).join(" ");
+
+            // Strip markdown formatting and placeholder variables, then clean up spaces
+            fullQuery = fullQuery
+                .replace(/[\$#_*`]/g, " ")
+                .replace(/MI\d+/g, " ")
+                .replace(/\s+/g, " ")
+                .trim();
+
+            if (questionObj.visual_description && questionObj.visual_description !== 'None') {
+                fullQuery += " " + questionObj.visual_description;
+            }
+
+            // Google URL length safety (approx 2000 chars max, 1500 is a safe threshold)
+            const finalQuery = encodeURIComponent(fullQuery.substring(0, 1500));
+            window.open(`https://www.google.com/search?q=${finalQuery}`, '_blank');
+        };
+
+        document.addEventListener('DOMContentLoaded', init);
+        
+        document.getElementById('settings-overlay').addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('open');
+        });
+
+    </script>
+</body>
+</html>
